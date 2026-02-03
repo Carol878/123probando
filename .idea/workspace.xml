@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b8c508db-5bba-4a2c-a1cf-3d634ef5395f" name="Changes" comment="commit 2">
+    <list default="true" id="b8c508db-5bba-4a2c-a1cf-3d634ef5395f" name="Changes" comment="commit inicial">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Aplicación cliente/src/app/components/cuerpo/formulario-nuevo/formulario-nuevo.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/Aplicación cliente/src/app/components/cuerpo/formulario-nuevo/formulario-nuevo.component.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,12 +19,12 @@
     &quot;assignee&quot;: &quot;Carol878&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Carol878/Proyecto-Intermodular-DAW.git&quot;,
-    &quot;accountId&quot;: &quot;25338830-d7c9-4d3e-af64-1de6b4c5722a&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Carol878/123probando.git",
+    "accountId": "25338830-d7c9-4d3e-af64-1de6b4c5722a"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 4
@@ -38,6 +39,7 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Node.js.truncate.pipe.ts.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "git-widget-placeholder": "master",
@@ -65,7 +67,7 @@
       <updated>1769254457726</updated>
       <workItem from="1769254458940" duration="2076000" />
       <workItem from="1769257502298" duration="52000" />
-      <workItem from="1770136203931" duration="305000" />
+      <workItem from="1770136203931" duration="2488000" />
     </task>
     <task id="LOCAL-00001" summary="commit 2">
       <option name="closed" value="true" />
@@ -75,7 +77,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769711380297</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="commit inicial">
+      <option name="closed" value="true" />
+      <created>1770136800291</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1770136800291</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -84,6 +94,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Primer comit" />
     <MESSAGE value="commit 2" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit 2" />
+    <MESSAGE value="commit inicial" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit inicial" />
   </component>
 </project>

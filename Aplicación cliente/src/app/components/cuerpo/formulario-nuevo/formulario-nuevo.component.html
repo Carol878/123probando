@@ -1,17 +1,13 @@
 <div class="contenedor-formulario">
-  <h2>Abrir nuevo cambio</h2>
+  <h2>{{ ticketForm.get('categoria')?.value === 'CAMBIO' ? 'Solicitar Cambio' : 'Nuevo Ticket' }}</h2>
 
   <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
-    <div class="campo-info">
-      <label>Estado Inicial:</label>
-      <span class="estado">Análisis de riesgos y planificación</span>
-    </div>
     <div class="fila">
       <div class="campo">
         <label for="categoria">Categoría:</label>
         <select id="categoria" formControlName="categoria">
           @for (cat of categorias; track cat) {
-          <option [value]="cat">{{ cat }}</option>
+            <option [value]="cat">{{ cat }}</option>
           }
         </select>
       </div>
@@ -20,7 +16,7 @@
         <label for="prioridad">Prioridad:</label>
         <select id="prioridad" formControlName="prioridad">
           @for (prio of prioridades; track prio) {
-          <option [value]="prio">{{ prio | titlecase }}</option>
+            <option [value]="prio">{{ prio }}</option>
           }
         </select>
       </div>
@@ -28,50 +24,60 @@
 
     <div class="fila-titulo">
       <label for="titulo">Título:</label>
-      <input
-        type="text"
-        id="titulo"
-        formControlName="titulo"
-        placeholder="Resumen breve del cambio..."
-      />
+      <input type="text" id="titulo" formControlName="titulo" placeholder="Resumen breve..." />
     </div>
 
     <div class="fila-descripcion">
       <label for="descripcion">Descripción Detallada:</label>
-      <textarea
-        id="descripcion"
-        formControlName="descripcion"
-        rows="4"
-        placeholder="Detalles, justificación y riesgos..."
-      ></textarea>
+      <textarea id="descripcion" formControlName="descripcion" rows="4"></textarea>
     </div>
+
+    @if (ticketForm.get('categoria')?.value === 'CAMBIO') {
+      <div class="grupo-cambio" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #0056b3;">
+        <h3>Detalles del Cambio ITIL</h3>
+
+        <div class="campo">
+          <label>Tipo de Cambio:</label>
+          <select formControlName="categoriaCambio">
+            @for (tipo of categoriasCambio; track tipo) {
+              <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="fila-descripcion">
+          <label>Plan de Implementación (¿Qué se va a hacer?):</label>
+          <textarea formControlName="planImplementacion" rows="3" placeholder="Pasos técnicos..."></textarea>
+        </div>
+
+        <div class="fila-descripcion">
+          <label>Plan de Marcha Atrás (Rollback):</label>
+          <textarea formControlName="planMarchaAtras" rows="3" placeholder="¿Qué hacer si falla?"></textarea>
+        </div>
+
+        <div class="fila-descripcion">
+          <label>Efecto de no implementar (Riesgo):</label>
+          <input type="text" formControlName="efectoNoImplementar" placeholder="¿Qué pasa si no hacemos esto?">
+        </div>
+      </div>
+    }
 
     <div class="fila">
       <div class="campo">
-        <label for="asignatario">Asignatario:</label>
-        <input
-          type="text"
-          id="asignatario"
-          formControlName="asignatario"
-          placeholder="Nombre del responsable"
-        />
+        <label for="asignatario">Asignatario (Username):</label>
+        <input type="text" id="asignatario" formControlName="asignatario" placeholder="Ej: pgranados" />
       </div>
 
       <div class="campo">
         <label for="area">Área Afectada:</label>
-        <input
-          type="text"
-          id="area"
-          formControlName="areaAfectada"
-          placeholder="Ej: Servidores, Base de Datos..."
-        />
+        <input type="text" id="area" formControlName="areaAfectada" />
       </div>
     </div>
 
     <div class="acciones">
       <button type="button" class="boton-cancelar" (click)="cancelar()">Cancelar</button>
-      <button type="submit" class="boton-guardar" >
-        Crear Solicitud de Cambio
+      <button type="submit" class="boton-guardar" [disabled]="ticketForm.invalid">
+        Crear Ticket
       </button>
     </div>
   </form>

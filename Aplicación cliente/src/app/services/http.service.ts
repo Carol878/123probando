@@ -13,7 +13,7 @@ import { ActividadIncidencia } from '../../model/actividad-incidencia.model';
   providedIn: 'root',
 })
 export class HttpService {
-  
+
   private url = 'http://localhost:9000';
   private http = inject(HttpClient);
 
@@ -49,6 +49,12 @@ export class HttpService {
     return this.http.post<Usuario[]>(this.url + '/usuarios/grupo', body, { headers });
   }
 
+  // Metodo para crear tickets (Cambios, Incidencias, etc.)
+  crearTicket(endpoint: string, ticket: any) {
+    const headers = this.contruirToken(); // Añadimos seguridad
+    return this.http.post(this.url + '/tickets/' + endpoint, ticket, { headers });
+  }
+
   contruirToken() {
     const basicToken = btoa(
       `${this.appService.getUsername()()}:${this.appService.getPassword()()}`
@@ -76,7 +82,7 @@ export class HttpService {
         console.log('Usuario o contraseña no validas');
         this.appService.setIntentoFallido(true);
         console.log(this.appService.getIntentoFallido()());
-        
+
       },
     });
   }

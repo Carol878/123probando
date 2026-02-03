@@ -86,7 +86,7 @@ export class TicketsService {
       next: this.ticketActualizado.set(ticket);
       this.cargarTickets();
     });
-    
+
   }
 
   // Configuramos un get para obtener el valor privado
@@ -127,12 +127,12 @@ export class TicketsService {
   mostrarTicket(ticket: Ticket) {
     this.proyeccion.set('ticket');
     this.visualizarTicket.set(ticket);
-    
+
     const subscripcion = this.httpService.buscarActividadesIncidencia(ticket.idTicket).subscribe((actividades) => {next: this.actividadesTicket.set(actividades);
       console.log(this.actividadesTicket())
     })
     this.destroyRef.onDestroy(() => subscripcion.unsubscribe());
-    
+
   }
 
   // Función para obtener valores anidados, primero separamos lo que venga en la ruta por los puntos, luego con "reduce" vamos accediendo a las variables que hemos separado creando un unico valor, es decir, si tenemos asignatario.username, en la primera vuelta accedemos a asignatario y en la siguiente a username
@@ -171,13 +171,41 @@ export class TicketsService {
     });
     this.ticketsFiltrados.set(ordenados);
   }
-  // Crear Ticket
   crearTicket(nuevoTicket: Ticket) {
-    // Actualizamos la señal añadiendo el nuevo ticket al array existente
-    this.ticketsAll.update((tickets) => [nuevoTicket, ...tickets]);
-    this.ticketsFiltrados.update((tickets) => [nuevoTicket, ...tickets]); //Para actualizar también la lista filtrada
-    // Opcional: Volver a la lista de tickets después de crear
-    this.mostrarTickets();
+    let endpoint = '';
+
+    // Determinamos el endpoint basado en la categoría del ticket
+    switch (nuevoTicket.categoriaTicket) {
+      case 'CAMBIO':
+        endpoint = 'cambios';
+        break;
+      case 'INCIDENCIA':
+        endpoint = 'incidencias';
+        break;
+      case 'PROBLEMA':
+        endpoint = 'problemas';
+        break;
+      case 'PETICION':
+        endpoint = 'peticiones';
+        break;
+      default:
+        console.error('Categoría desconocida');
+        return;
+    }
+
+    // Llamamos al HttpService (Asumiendo que tienes un método genérico POST o crear)
+    // Nota: Si no tienes un método genérico en HttpService, deberás crearlo.
+    // Aquí asumo que usas el http nativo o un método 'post' en tu servicio.
+    this.httpService.crearTicket(endpoint, nuevoTicket).subscribe({
+      next: (ticketCreado: any) => {
+        console.log('Ticket creado en BBDD:', ticketCreado);
+        // Actualizamos la lista local con la respuesta del servidor (que ya tiene ID real)
+        this.ticketsAll.update((tickets) => [ticketCreado, ...tickets]);
+        this.ticketsFiltrados.update((tickets) => [ticketCreado, ...tickets]);
+        this.mostrarTickets(); // Volver al listado
+      },
+      error: (err: any) => console.error('Error al crear ticket:', err)
+    });
   }
 
   // Función de búsqueda de tickets: ---

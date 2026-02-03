@@ -1,0 +1,78 @@
+<div class="contenedor-formulario">
+  <h2>Abrir nuevo cambio</h2>
+
+  <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
+    <div class="campo-info">
+      <label>Estado Inicial:</label>
+      <span class="estado">Análisis de riesgos y planificación</span>
+    </div>
+    <div class="fila">
+      <div class="campo">
+        <label for="categoria">Categoría:</label>
+        <select id="categoria" formControlName="categoria">
+          @for (cat of categorias; track cat) {
+          <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="prioridad">Prioridad:</label>
+        <select id="prioridad" formControlName="prioridad">
+          @for (prio of prioridades; track prio) {
+          <option [value]="prio">{{ prio | titlecase }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="fila-titulo">
+      <label for="titulo">Título:</label>
+      <input
+        type="text"
+        id="titulo"
+        formControlName="titulo"
+        placeholder="Resumen breve del cambio..."
+      />
+    </div>
+
+    <div class="fila-descripcion">
+      <label for="descripcion">Descripción Detallada:</label>
+      <textarea
+        id="descripcion"
+        formControlName="descripcion"
+        rows="4"
+        placeholder="Detalles, justificación y riesgos..."
+      ></textarea>
+    </div>
+
+    <div class="fila">
+      <div class="campo">
+        <label for="asignatario">Asignatario:</label>
+        <input
+          type="text"
+          id="asignatario"
+          formControlName="asignatario"
+          placeholder="Nombre del responsable"
+        />
+      </div>
+
+      <div class="campo">
+        <label for="area">Área Afectada:</label>
+        <input
+          type="text"
+          id="area"
+          formControlName="areaAfectada"
+          placeholder="Ej: Servidores, Base de Datos..."
+        />
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button type="button" class="boton-cancelar" (click)="cancelar()">Cancelar</button>
+      <button type="submit" class="boton-guardar" [disabled]="ticketForm.invalid">
+        Crear Solicitud de Cambio
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,13 @@
+<!-- Cuerpo del sitio -->
+
+
+  @switch (proyeccion()) { @case ("tickets") {
+  <!-- Cargamos la tabla con los datos en función  un valor -->
+  <app-tickets />
+  } @case ("form-nuevo") {
+  <app-formulario-nuevo />
+  } @case ("form-busqueda") {
+  <app-formulario-busqueda />
+  } @case ("ticket") 
+  { <app-ticket /> }}
+

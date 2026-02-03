@@ -1,0 +1,15 @@
+
+<!-- 
+<p>{{ ticket | json }}</p> -->
+<!-- Swith para mostrar un formualrio diferente dependiendo dle tipo de ticket -->
+@switch (ticket?.categoriaTicket?.toLocaleLowerCase()) { 
+  @case ("incidencia") {
+<app-incidencia/>
+  } @case ("petición") {
+<app-peticion/>
+  } @case ("problema") {
+<app-problema/>
+  } @case ("cambio") {
+<app-cambio/>
+  }
+}

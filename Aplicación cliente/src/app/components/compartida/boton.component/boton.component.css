@@ -1,0 +1,21 @@
+:host {
+  display: flex;
+  margin-left: 10px;
+  margin-bottom: 20px;
+  padding: 5px 15px;
+  border: none;
+  background-color: #c8c8c866;
+  color: rgb(0, 0, 0);
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  align-items: center;
+  
+}
+
+:host:hover {
+  background-color: #a8c9c3;
+  color: black;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+

@@ -1,0 +1,146 @@
+.form-container {
+  width: 98%;
+  margin: auto;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.form-row label {
+  width: 130px;
+}
+
+.form-row input,
+.form-row textarea,
+.form-row select {
+  flex: 1;
+  padding: 5px;
+  margin-right: 19px;
+  border: 1px solid #747474;
+  border-radius: 4px;
+}
+
+/*No se usa, lo dejo por el esfuerzo :D
+ .single-column {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.single-column label {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.single-column input,
+.single-column textarea {
+  width: 100%;
+} */
+
+input,
+textarea,
+label,
+select {
+  margin-bottom: 10px;
+  font-size: medium;
+}
+
+button {
+  margin-bottom: 1%;
+  margin-right: 1%;
+}
+
+img.especificas {
+  width: auto;
+  height: 20px;
+  margin-right: 10px;
+  margin-top: 3px;
+}
+
+button img.especificas {
+  filter: brightness(1);
+}
+
+.contenedor-botones {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+/* .contenedor-botones-debajo {
+  margin-top: 1%;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+} */
+
+/* Campos deshabilitados */
+form input[disabled],
+form textarea[disabled] {
+  background: #dedede;
+  color: #000000;
+  border: 1px solid #747474;
+  cursor: not-allowed;
+}
+/* Focus */
+form input:focus,
+form textarea:focus,
+form select:focus {
+  border: 2px solid #273278;
+  outline: none;
+}
+
+form {
+  gap: 16px 20px;
+  background: #f4f4f4;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  padding: 20px;
+}
+
+textarea {
+  resize: none;
+  font-family: 'Poppins', sans-serif;
+}
+
+.tabla-actividades {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #747474;
+  overflow: hidden;
+}
+
+.tabla-actividades thead th {
+  background: #e6e6e6;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: medium;
+  border-bottom: 1px solid #747474;
+}
+
+.tabla-actividades td {
+  padding: 10px;
+  font-size: medium;
+  color: #333;
+}
+
+.tabla-actividades tbody tr:hover {
+  background: #d3dde0;
+  transition: 0.2s ease;
+}
+
+.tabla-actividades td,
+.tabla-actividades th {
+  border-bottom: 1px solid #dcdcdc;
+}
+
+.tabla-wrapper {
+  overflow-x: auto;
+}

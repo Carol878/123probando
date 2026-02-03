@@ -1,0 +1,137 @@
+table {
+  width: 100%;
+  border: 1px solid #999;
+  text-align: left;
+  border-collapse: collapse;
+  margin: 0 0 1em 0;
+  caption-side: top;
+  border-radius: 2px;
+}
+th,
+td {
+  border-bottom: 1px solid #999;
+  width: 9%;
+  /* todo: Estudiar si esto es posible para no hacer el pipe */
+  /* overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; */
+}
+
+th {
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
+  cursor: pointer;
+}
+
+td.id {
+  padding-left: 1%;
+}
+
+.encabezado-tabla {
+  background-color: #404566;
+  text-align: center;
+  color: #ebf0fe;
+}
+
+td.categoria {
+  text-align: center;
+  padding-left: 0%;
+}
+
+.contenido-tabla {
+  background-color: rgb(255, 255, 255);
+  height: 40px;
+  white-space: nowrap;
+}
+
+.contenido-tabla:hover {
+  background-color: rgb(219, 219, 219);
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+img.ascendente,
+img.descendente {
+  position: absolute;
+  width: auto;
+  height: 15px;
+  filter: brightness(1) invert(1);
+  margin-top: 3px;
+  margin-left: 3px;
+}
+
+img.ascendente {
+  transform: scaleY(-1);
+}
+
+td.critica,
+td.alta,
+td.media,
+td.baja {
+  color: #000000;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 3px #fff;
+  border-radius: 2px;
+
+  padding-left: 1%;
+}
+
+.contenido-tabla:hover td.critica,
+.contenido-tabla:hover td.alta,
+.contenido-tabla:hover td.media,
+.contenido-tabla:hover td.baja {
+  box-shadow: inset 0 0 0 3px rgb(219, 219, 219);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Estilos especificos */
+td.critica {
+  background-color: #e94949;
+}
+
+td.alta {
+  background-color: #ffca45;
+}
+
+td.media {
+  background-color: #00b49f;
+}
+
+td.baja {
+  background-color: #a1a1a1;
+}
+
+button {
+  margin-bottom: 1%;
+  margin-right: 1%;
+}
+
+img.especificas {
+  width: auto;
+  height: 20px;
+  margin-right: 10px;
+  margin-top: 3px;
+  filter: brightness(0);
+ will-change: transform; /* Optimización para animaciones */
+}
+
+.rotar {
+  transform: rotate(90deg);
+}
+/* button:hover img.especificas{
+   filter: brightness(0) invert(1); 
+} */
+
+.contenedor-botones {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+h2 {
+  margin-left: 20px;
+}
+
+td.estado {
+  text-align: center;
+}

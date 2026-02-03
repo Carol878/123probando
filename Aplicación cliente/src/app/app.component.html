@@ -1,0 +1,41 @@
+@if (!logeado()) {
+
+<app-panel-login />
+
+}@else {
+
+<!-- Mostramos el encabezado -->
+
+<app-encabezado />
+
+<!-- Mostramos los botones para moverse por los distintos tipos de tickets. -->
+<div class="layout">
+  <aside [class.sidebar]="asideDesplegado()" [class.sidebar-oculta]="!asideDesplegado()">
+    <div class="derecha">
+      @if (!asideDesplegado()) {
+      <button appButton (click)="desplegarAside()" class="aside">
+        <span ngProjectAs="icono"
+          ><img class="especificas espejo" src="manipularAside.png" alt="Imagen de >>"
+        /></span>
+      </button>
+      }@else{
+      <button appButton (click)="plegarAside()" class="aside">
+        <span ngProjectAs="icono"
+          ><img class="especificas" src="manipularAside.png" alt="Imagen de <<"
+        /></span></button
+      >}
+    </div>
+
+    @if (asideDesplegado()) { @for (funcion of funciones; track $index) {
+    <app-funciones [funcion]="funcion" />
+    } }
+  </aside>
+
+  <!-- Pantalla inicial con todos los tickets -->
+  <main
+    [class]="{ 'body-aplicacion': asideDesplegado(), 'body-aplicacion-full': !asideDesplegado() }"
+  >
+    <app-cuerpo />
+  </main>
+</div>
+}

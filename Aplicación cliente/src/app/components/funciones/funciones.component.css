@@ -1,0 +1,26 @@
+
+button {
+  display: block;       
+  width: 100%; 
+  padding: 20px;
+  border: none;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+  font-size: medium;
+  box-sizing: border-box;
+}
+
+button:hover {
+  background-color: #c8c8c866;
+  color: black;
+  transform: translateY(-2px);
+}
+
+.seleccionado {
+  background-color: #a8c9c366;
+  color: black;
+  transform: translateY(-2px);
+  border-left: 4px solid rgb(21, 22, 49)
+}

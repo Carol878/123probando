@@ -1,0 +1,197 @@
+<div class="contenedor-botones">
+  <button appButton (click)="alCancelar()">
+    Cancelar
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="cancelar.png" alt="Imagen de lupa"
+    /></span>
+  </button>
+
+  <button appButton (click)="alGuardarYSalir()">
+    Guardar y salir
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="guardar-y-salir.png" alt="Imagen de disco"
+    /></span>
+  </button>
+
+  <button appButton (click)="alGuardar()">
+    Guardar
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="guardar.png" alt="Imagen de disco"
+    /></span>
+  </button>
+  @if (coincideUsuarioConAsignado()) {
+    <button appButton (click)="alResolver()">
+      Resolver
+      <span ngProjectAs="icono"
+        ><img class="especificas" src="resolver.png" alt="Imagen de resolver"
+      /></span>
+    </button>
+  }
+</div>
+
+<form [formGroup]="miFormulario">
+  <h3>{{ ticket!.categoriaTicket }} - {{ ticket!.codigoTicket }}</h3>
+
+  <hr />
+  <br />
+
+  @if (!resolver()) {
+    <div class="form-container">
+      <div class="form-row">
+        <label for="titulo">Título:</label>
+        <input type="text" id="titulo" name="titulo" required formControlName="titulo" />
+      </div>
+
+      <div class="form-row">
+        <label for="descripcion">Descripción:</label>
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          rows="4"
+          cols="50"
+          required
+          formControlName="descripcion"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="estado">Estado:</label>
+        <input type="text" id="estado" name="estado" required formControlName="estado" />
+        <label for="abiertoPor">Abierto por:</label>
+        <input
+          type="text"
+          id="abiertoPor"
+          name="abiertoPor"
+          required
+          formControlName="abiertoPor"
+        />
+      </div>
+
+      <div class="form-row">
+        <label for="prioridad">Prioridad:</label>
+        <input type="text" id="prioridad" name="prioridad" required formControlName="prioridad" />
+        <label for="areaAfectada">Área Afectada:</label>
+        <select id="areaAfectada" name="areaAfectada" required formControlName="areaAfectada">
+          @for (area of areas(); track $index) {
+            <option [value]="area.nombreArea">{{ area.nombreArea }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="fechaApertura">Fecha Apertura:</label>
+        <input
+          type="text"
+          id="fechaApertura"
+          name="fechaApertura"
+          [value]="miFormulario.get('fechaApertura')!.value | date: 'short'"
+          required
+          disabled
+        />
+        <label for="fechaCierre">Fecha Cierre:</label>
+        <input
+          type="text"
+          id="fechaCierre"
+          name="fechaCierre"
+          [value]="miFormulario.get('fechaCierre')!.value | date: 'short'"
+          disabled
+        />
+        <label for="fechaLimite">Fecha Límite:</label>
+        <input
+          type="text"
+          id="fechaLimite"
+          name="fechaLimite"
+          [value]="miFormulario.get('fechaLimite')!.value | date: 'short'"
+          disabled
+        />
+      </div>
+
+      <div class="form-row">
+        <label for="grupo">Grupo:</label>
+        <select type="text" id="grupo" name="grupo" formControlName="grupo">
+          @for (grupo of grupos(); track $index) {
+            <option [value]="grupo.idGrupo">{{ grupo.nombreGrupo }}</option>
+          }
+        </select>
+        <label for="asignatario">Asignado:</label>
+        <select type="text" id="asignatario" name="asignatario" formControlName="asignatario">
+          @for (usuario of usuarios(); track $index) {
+            <option [value]="usuario.username">{{ usuario.username }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  } @else {
+    <div class="form-row">
+      <label for="tipoCierre">Tipo Cierre:</label>
+      <select type="text" id="tipoCierre" name="tipoCierre" formControlName="tipoCierre">
+        @for (tipo of tiposCierre(); track $index) {
+          <option [value]="tipo.nombreArea">{{ tipo.nombreArea }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="comentarioCierre">Comentario cierre:</label>
+      <textarea
+        id="comentarioCierre"
+        name="comentarioCierre"
+        rows="3"
+        cols="50"
+        formControlName="comentarioCierre"
+      ></textarea>
+    </div>
+  }
+
+  @if (coincideUsuarioConAsignado()) {
+    <div class="contenedor-botones">
+      <button appButton (click)="alAnadirComentario()">
+        Añadir Comentario
+        <span ngProjectAs="icono"
+          ><img class="especificas" src="anadir-nota.png" alt="Imagen de lupa"
+        /></span>
+      </button>
+    </div>
+  }
+
+  <div class="tabla-wrapper">
+    <table class="tabla-actividades">
+      <thead>
+        <tr>
+          <th>Autor</th>
+          <th>Fecha</th>
+          <th>Grupo</th>
+          <th>Comentario</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (actividad of actividades(); track $index) {
+          <tr>
+            <td>{{ actividad.autor.username }}</td>
+            <td>
+              {{ actividad.fechaComentario | date: 'dd/MM/yyyy HH:mm' }}
+            </td>
+            <td>{{ actividad.autor.grupo.nombreGrupo }}</td>
+            <td>{{ actividad.comentario }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</form>
+
+<!-- <div class="contenedor-botones-debajo">
+  <button appButton (click)="alCancelar()">
+    Cancelar
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="cancelar.png" alt="Imagen de lupa"
+    /></span>
+  </button>
+
+  <button appButton (click)="alGuardar()">
+    Actualizar
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="guardar.png" alt="Imagen de disco"
+    /></span>
+  </button>
+</div> -->

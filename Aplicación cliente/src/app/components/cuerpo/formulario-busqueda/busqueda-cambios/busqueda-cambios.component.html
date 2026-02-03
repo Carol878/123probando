@@ -1,0 +1,73 @@
+<div class="contenedor-botones">
+  <button appButton (click)="alCancelar()">
+    Cancelar
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="cancelar.png" alt="Imagen de lupa"
+    /></span>
+  </button>
+  <button appButton>
+    Buscar
+    <span ngProjectAs="icono"><img class="especificas" src="lupa.png" alt="Imagen de lupa" /></span>
+  </button>
+</div>
+
+<div class="contenedor-formulario">
+  <h2>Buscador Tickets</h2>
+
+  <form [formGroup]="searchForm">
+    
+    <div class="fila">
+      <div class="campo">
+        <label for="categoria">Categoría:</label>
+        <select id="categoria" formControlName="categoria">
+          <option value="">-- Todas las categorías --</option>
+          @for (cat of categorias; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="prioridad">Prioridad:</label>
+        <select id="prioridad" formControlName="prioridad">
+          <option value=""> Todas las prioridades </option>
+          @for (p of prioridades; track p) {
+            <option [value]="p">{{ p | titlecase }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="fila-titulo">
+      <label for="titulo">Título del Ticket:</label>
+      <input
+        type="text"
+        id="titulo"
+        formControlName="titulo"
+        placeholder="Escribe para buscar por texto..."
+      />
+    </div>
+
+    <div class="fila">
+      <div class="campo">
+        <label for="area">Área Afectada:</label>
+        <input
+          type="text"
+          id="area"
+          formControlName="areaAfectada"
+          placeholder="Ej: Servidores, Redes..."
+        />
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button type="button" class="boton-cancelar" (click)="limpiarFiltros()">
+        Limpiar Filtros
+      </button>
+      
+      <p class="nota-informativa">
+        * La búsqueda se actualiza automáticamente al escribir.
+      </p>
+    </div>
+  </form>
+</div>

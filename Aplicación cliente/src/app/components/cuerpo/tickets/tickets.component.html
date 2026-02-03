@@ -1,0 +1,113 @@
+<div>
+
+  @switch (tipoDeTicket()) {
+    @case ("todos") {
+      <h2>Tickets pendientes de mi grupo</h2>
+    }
+    @case ("cambio") {
+      <h2>Cambios</h2>
+    }
+    @case ("incidencia") {
+      <h2>Incidencias</h2>
+
+    }
+    @case ("petición") {
+      <h2>Peticiones</h2>
+  
+    }
+    @case ("problema") {
+      <h2>Problemas</h2>
+      
+    }
+  }
+
+</div>
+
+
+<hr>
+
+<div>
+<div class="contenedor-botones">
+
+  <button appButton (click)="actualizarTickets()">
+          Actualizar
+          <span ngProjectAs="icono"
+            ><img class="especificas" src="recargar.png" alt="Imagen de recarga" #imagenRecarga
+          /></span>
+        </button>
+
+  @if (tipoDeTicket()!="todos"){
+      
+        <!-- Boton con directiva button para no repetir la estructa más de lo necesario -->
+        <button appButton (click)="mostrarFormularioBusqueda()">
+          Buscar {{tipoDeTicket()}}
+          <span ngProjectAs="icono"
+            ><img class="especificas" src="lupa.png" alt="Imagen de lupa"
+          /></span>
+        </button>
+  
+        <button appButton (click)="mostrarFormularioNuevo()">
+          Abrir {{tipoDeTicket()}}
+          <span ngProjectAs="icono"
+            ><img class="especificas" src="abrirticket.png" alt="Imagen de auriculares de soporte"
+          /></span>
+        </button>
+      
+      }
+    </div>
+</div>
+
+
+<div class="tickets">
+  <table>
+    <tr class="encabezado-tabla">
+      @for (nombre of nombreColumnas; track nombre.clave) {
+      <th (click)="ordenarFilas(nombre.clave)">
+        {{ nombre.valor }}
+        <!-- Comparamos y asignamos si esta invertido en función de si es ascedente o descendente -->
+        @if(mostrarTriangulo() === nombre.clave){
+        <img
+          [class]="{
+            ascendente: ordenarInverso(),
+            descendente: !ordenarInverso()
+          }"
+          src="triangulo.png"
+          alt="Filtro Activo"
+        />
+        }
+      </th>
+      }
+    </tr>
+
+    @if (tipoDeTicket()==="todos") { @for (ticket of Todos; track ticket.idTicket) {
+    <tr class="contenido-tabla" (click)="mostrarTicket(ticket)">
+      <td class="id">{{ ticket.codigoTicket }}</td>
+      <td class="categoria">{{ ticket.categoriaTicket | titlecase }}</td>
+      <td>{{ ticket.titulo | truncar : 20 }}</td>
+      <td>{{ ticket.descripcion | truncar : 40 }}</td>
+      <td>{{ ticket.fechaApertura | date : 'short' }}</td>
+      <td>{{ ticket.asignatario?.username }}</td>
+      <td>{{ ticket.grupo.nombreGrupo }}</td>
+      <td  class="estado">{{ ticket.estado }}</td>
+      <td>{{ ticket.areaAfectada }}</td>
+      <td [class]="obtenerClaseDePrioridad(ticket.prioridad)">{{ ticket.prioridad }}</td>
+    </tr>
+    } } @else { @for (ticket of soloUnTipo; track ticket.idTicket) {
+    <tr class="contenido-tabla" (click)="mostrarTicket(ticket)">
+      <td class="id">{{ ticket.codigoTicket }}</td>
+      <td class="categoria">{{ ticket.categoriaTicket | titlecase }}</td>
+      <td>{{ ticket.titulo | truncar : 20 }}</td>
+      <td>{{ ticket.descripcion | truncar : 40 }}</td>
+      <td>{{ ticket.fechaApertura | date : 'short' }}</td>
+      <td>{{ ticket.asignatario?.username }}</td>
+      <td>{{ ticket.grupo.nombreGrupo }}</td>
+      <td class="estado">{{ ticket.estado }}</td>
+      <td>{{ ticket.areaAfectada }}</td>
+      <!-- funcion para cambiar la clase dinamicamente, se activara la clase que devuelva la funcion para el CSS-->
+      <td [class]="obtenerClaseDePrioridad(ticket.prioridad)">
+        {{ ticket.prioridad }}
+      </td>
+    </tr>
+    } }
+  </table>
+</div>

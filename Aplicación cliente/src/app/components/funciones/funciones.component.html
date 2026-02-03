@@ -1,0 +1,14 @@
+<!-- Boton de HTML con un pipe para que lo muestre en formato titulo, con la primera mayuscula. 
+ Ya que como es un valor que cargamos dinamicamente lo tenemos almacenado en minúsculas.
+ Ademas escucha el evento click y llama a cambiar el tipo de ticket. Como se crea un componente por cada "funcion" 
+ los datos que se deben mandar se definen en el metodo que cambia el tipo en el service.
+ Tiene una asignación de clase dinamica y tambien se deshabilita si procede.
+  -->
+<button
+  (click)="cambiarTicketVisible()"
+  [class]="{
+    'seleccionado' : comprobarSiEstaSeleccionado(),
+  }"
+>
+  {{ funcion.nombre | titlecase }}
+</button>

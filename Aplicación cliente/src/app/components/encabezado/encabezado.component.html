@@ -1,0 +1,23 @@
+<!-- Contenedor del encabezado, con una etiqueta estandar de HTML -->
+<header>
+  <!-- Imagen con enlace de la UNIR.
+   Lleva una directiva como un atributo de etiqueta [appEnlaceSeguro] esto hace que se cree como un componente pero sin plantilla propia.
+   Consultar directiva para más informacion -->
+  <div class="izquierda">
+    <a href="https://www.unir.net" appEnlaceSeguro target="_blank">
+      <img class="encabezado-unir" src="logo-unir.png" alt="Logo empresa" />
+    </a>
+  </div>
+
+  <!-- Boton oculto con el titulo del sitio web que emite un evento tipo click y hace que se muestre todos los tickets, independientemente de su categoría -->
+  <div class="centro">
+    <button (click)="cambiarTicketVisible()" class="principal">
+      <!-- <img class="logo-app" src="logo-app.png" alt="Logo apliacion"> -->
+      <h3>SERVICE MANAGER - ( PORTAL TÉCNICO )</h3>
+    </button>
+  </div>
+
+  <div class="derecha">
+    <img class="user-icon" src="logout.png" alt="Icono User" (click)="cerrarSesion()" />
+  </div>
+</header>

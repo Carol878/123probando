@@ -1,0 +1,8 @@
+<!-- Aqui cargara el contenido del span con ngProjectAs que corresponda con el select -->
+<span>
+    <ng-content select="icono"/>
+</span>
+<!-- En el primer ng-content sin select mostrara todo, salvo lo que le hayamos configurado en ngProjectAs en el button -->
+<span class="texto">
+    <ng-content />
+</span>

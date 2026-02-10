@@ -1,11 +1,13 @@
-import { DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
-import { type Ticket } from '../components/cuerpo/tickets/ticket.model';
+import { DestroyRef, effect, inject, Injectable, Signal, signal } from '@angular/core';
+import { Incidencia, type Ticket } from '../components/cuerpo/tickets/ticket.model';
 import { HttpService } from './http.service';
 import { Usuario } from '../../model/usuario.model';
 import { AppService } from './app.service';
 import { Grupo } from '../../model/grupo.model';
 import { TicketSalidaDto } from '../../model/ticket-salida-dto.model';
 import { ActividadIncidencia } from '../../model/actividad-incidencia.model';
+import { TimestampProvider, OperatorFunction, Timestamp } from 'rxjs';
+import { ActividadIncidenciaDto } from '../../model/actividad-incidencia-dto.model';
 
 // Decoramos la clase como inyectable para poder crear una sola instancia de la misma en todos los componenete y que comparatn la información.
 // El valor root significar que lo añada al apartado root del arbol de inyecciones de Angular.
@@ -24,13 +26,18 @@ export class TicketsService {
   //Creamos la variable ticketsAll y tickets filtrados para poder aplicar y deshacer filtros
   private ticketsAll = signal<Ticket[]>([]);
   private ticketsFiltrados = signal<Ticket[]>([]);
+  private ticketsAbiertos = signal<Ticket[]>([]);
 
   //Creamos esta variable para corta la subcripción cuando finalice. En este caso va a estar escuchando siempre pero es una buena práctica.
   private destroyRef = inject(DestroyRef);
 
   constructor() {
     this.cargarTickets();
-    const intervalo = setInterval(() =>{ if (this.appService.getLogeado()()){this.cargarTickets()}},10000);
+    const intervalo = setInterval(() => {
+      if (this.appService.getLogeado()()) {
+        this.cargarTickets();
+      }
+    }, 10000);
     this.destroyRef.onDestroy(() => clearInterval(intervalo));
   }
 
@@ -45,8 +52,17 @@ export class TicketsService {
         datos.filter(
           (ticket) =>
             ticket.estado !== 'Cerrado' &&
-            ticket.grupo?.idGrupo === this.appService.getUsuarioValido()()?.grupo?.idGrupo
-        )
+            ticket.grupo?.idGrupo === this.appService.getUsuarioValido()()?.grupo?.idGrupo,
+        ),
+      );
+
+      // Aplicamos el filtro inicial
+      this.ticketsAbiertos.set(
+        datos.filter(
+          (ticket) =>
+            ticket.estado !== 'Cerrado' &&
+            ticket.abiertoPor?.username === this.appService.getUsuarioValido()()?.username,
+        ),
       );
     });
     this.destroyRef.onDestroy(() => subscripcion.unsubscribe());
@@ -60,11 +76,14 @@ export class TicketsService {
 
   //variable para alamacen actividades de tickets seleccionado
 
-  private actividadesTicket = signal<ActividadIncidencia[] | undefined>(undefined);
+  private actividadesTicket = signal<ActividadIncidencia[]>([]);
 
   // Configuramos un get para obtener el valor privado
   getVisualizarTicket() {
     return this.visualizarTicket();
+  }
+  getVisualizarTicketSignal() {
+    return this.visualizarTicket.asReadonly();
   }
 
   // Configuramos un get para obtener el valor privado
@@ -72,20 +91,40 @@ export class TicketsService {
     return this.actividadesTicket.asReadonly();
   }
 
-  private ticketActualizado = signal<Ticket | undefined>(this.getVisualizarTicket());
+  //funcion para que se borren las actividades cuando se sale de el
+  setActividadesTicket() {
+    this.actividadesTicket.set([]);
+  }
 
+  anadirComentarioATicket(nuevaActividad: ActividadIncidenciaDto) {
+    this.httpService.anadirComentarioATicket(nuevaActividad).subscribe({
+      next: (actividad) => this.actividadesTicket.update((lista) => [...lista, actividad]),
+    });
+  }
+
+  private ticketActualizado = signal<Ticket | undefined>(this.getVisualizarTicket());
 
   getTicketActualizado() {
     return this.ticketActualizado.asReadonly();
   }
 
-
-
   actualizarTicket(nuevoTicket: TicketSalidaDto) {
     this.httpService.actualizarTicket(nuevoTicket).subscribe((ticket) => {
       next: this.ticketActualizado.set(ticket);
+      this.visualizarTicket.set(ticket);
       this.cargarTickets();
     });
+  }
+
+  crearTicket(nuevoTicket: TicketSalidaDto) {
+    this.httpService.crearTicket(nuevoTicket).subscribe((ticket) => {
+      next: this.ticketActualizado.set(ticket);
+      this.cargarTickets();
+      this.visualizarTicket.set(ticket);
+      this.proyeccion.set('ticket');
+
+    });
+
 
   }
 
@@ -93,6 +132,11 @@ export class TicketsService {
   getTickets() {
     return this.ticketsFiltrados();
   }
+
+  getTicketsAbiertos() {
+    return this.ticketsAbiertos();
+  }
+
   // Configuramos un get para obtener el valor privado OJO, mandamos una writable signal, por lo que hay que poner asReadonly()
   getTipoDeTicketVisible() {
     return this.tipoDeTicketVisible.asReadonly();
@@ -104,6 +148,9 @@ export class TicketsService {
 
   setTipoDeTicketVisible(nuevoValor: string) {
     this.tipoDeTicketVisible.set(nuevoValor);
+
+    //y hacemos que si habia un ticket seleccioando se borren las actividades para que no salgan si por ejemplo creamos un ticket nuevo.
+    this.setActividadesTicket();
   }
 
   //Funcion a la que se llama cuando se pulsa el titulo del encabezado o alguno de los botones de "funciones", cambia el tipo de ticket que se lista en el componenete app-tickets.
@@ -127,12 +174,16 @@ export class TicketsService {
   mostrarTicket(ticket: Ticket) {
     this.proyeccion.set('ticket');
     this.visualizarTicket.set(ticket);
+    // limpiamos la señal de ticket actualizado cuando cargamos un nuevo ticket
+    this.ticketActualizado.set(undefined);
 
-    const subscripcion = this.httpService.buscarActividadesIncidencia(ticket.idTicket).subscribe((actividades) => {next: this.actividadesTicket.set(actividades);
-      console.log(this.actividadesTicket())
-    })
+    const subscripcion = this.httpService
+      .buscarActividadesIncidencia(ticket.idTicket)
+      .subscribe((actividades) => {
+        next: this.actividadesTicket.set(actividades);
+        console.log(this.actividadesTicket());
+      });
     this.destroyRef.onDestroy(() => subscripcion.unsubscribe());
-
   }
 
   // Función para obtener valores anidados, primero separamos lo que venga en la ruta por los puntos, luego con "reduce" vamos accediendo a las variables que hemos separado creando un unico valor, es decir, si tenemos asignatario.username, en la primera vuelta accedemos a asignatario y en la siguiente a username
@@ -146,7 +197,7 @@ export class TicketsService {
 
     const claveDeOrden = arrayDeClaves.reduce(
       (objeto, clave) => (objeto ? objeto?.[clave] : ''),
-      obj
+      obj,
     );
 
     return claveDeOrden;
@@ -170,42 +221,6 @@ export class TicketsService {
       return String(segundoValor).localeCompare(String(primerValor));
     });
     this.ticketsFiltrados.set(ordenados);
-  }
-  crearTicket(nuevoTicket: Ticket) {
-    let endpoint = '';
-
-    // Determinamos el endpoint basado en la categoría del ticket
-    switch (nuevoTicket.categoriaTicket) {
-      case 'CAMBIO':
-        endpoint = 'cambios';
-        break;
-      case 'INCIDENCIA':
-        endpoint = 'incidencias';
-        break;
-      case 'PROBLEMA':
-        endpoint = 'problemas';
-        break;
-      case 'PETICION':
-        endpoint = 'peticiones';
-        break;
-      default:
-        console.error('Categoría desconocida');
-        return;
-    }
-
-    // Llamamos al HttpService (Asumiendo que tienes un método genérico POST o crear)
-    // Nota: Si no tienes un método genérico en HttpService, deberás crearlo.
-    // Aquí asumo que usas el http nativo o un método 'post' en tu servicio.
-    this.httpService.crearTicket(endpoint, nuevoTicket).subscribe({
-      next: (ticketCreado: any) => {
-        console.log('Ticket creado en BBDD:', ticketCreado);
-        // Actualizamos la lista local con la respuesta del servidor (que ya tiene ID real)
-        this.ticketsAll.update((tickets) => [ticketCreado, ...tickets]);
-        this.ticketsFiltrados.update((tickets) => [ticketCreado, ...tickets]);
-        this.mostrarTickets(); // Volver al listado
-      },
-      error: (err: any) => console.error('Error al crear ticket:', err)
-    });
   }
 
   // Función de búsqueda de tickets: ---

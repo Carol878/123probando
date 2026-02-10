@@ -3,7 +3,7 @@ import { Usuario } from '../../../../model/usuario.model';
 
 // Interface base con campos comunes
 export interface TicketBase {
-  idTicket: string;
+  idTicket: number;
   categoriaTicket: string;
   titulo: string;
   descripcion: string;

@@ -69,15 +69,51 @@ public class TicketRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoCambio);
     }
 
-    // 2. Endpoint para crear INCIDENCIAS
-    @PostMapping("/incidencias")
-    public ResponseEntity<?> crearIncidencia(@RequestBody Incidencia incidencia) {
-        if (incidencia.getFechaApertura() == null) {
-            incidencia.setFechaApertura( LocalDate.now());
-        }
-        Incidencia nueva = incidenciaService.insertOne(incidencia);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
-    }
+	@PostMapping("/incidencias")
+	public ResponseEntity<?> crearIncidencia(@RequestBody Incidencia incidencia) {
+
+		// 1. Fechas: Si no trae fecha de apertura, poner la actual
+		if (incidencia.getFechaApertura() == null) {
+			incidencia.setFechaApertura(LocalDate.now());
+		}
+
+		// 2. Vincular Usuarios y Grupo (Protección contra nulos)
+		// --- Creador ---
+		if (incidencia.getAbiertoPor() != null && incidencia.getAbiertoPor().getUsername() != null) {
+			Usuario creador = usuarioService.findById(incidencia.getAbiertoPor().getUsername());
+			if (creador != null) incidencia.setAbiertoPor(creador);
+			else return ResponseEntity.badRequest().body("Usuario creador no existe");
+		}
+
+		// --- Asignatario ---
+		if (incidencia.getAsignatario() != null && incidencia.getAsignatario().getUsername() != null) {
+			Usuario tecnico = usuarioService.findById(incidencia.getAsignatario().getUsername());
+			if (tecnico != null) incidencia.setAsignatario(tecnico);
+			else incidencia.setAsignatario(null); // Si no existe, lo dejamos null
+		} else {
+			incidencia.setAsignatario(null);
+		}
+
+		// --- Grupo ---
+		if (incidencia.getGrupo() != null && incidencia.getGrupo().getIdGrupo() != null) {
+			Grupo grupo = grupoService.findById(incidencia.getGrupo().getIdGrupo());
+			if (grupo != null) incidencia.setGrupo(grupo);
+			else incidencia.setGrupo(null);
+		}
+
+		// 3. Generación de Código (INC-X)
+		// Primer guardado para obtener ID
+		Incidencia ticketGuardado = incidenciaService.insertOne(incidencia);
+
+		// Generar código y actualizar
+		String codigoGenerado = "INC-" + ticketGuardado.getIdTicket();
+		ticketGuardado.setCodigoTicket(codigoGenerado);
+
+		// Segundo guardado
+		ticketGuardado = incidenciaService.insertOne(ticketGuardado);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(ticketGuardado);
+	}
 
     // 3. Endpoint para PETICIONES
     @PostMapping("/peticiones")

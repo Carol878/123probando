@@ -119,7 +119,7 @@ img.especificas {
   transform: rotate(90deg);
 }
 /* button:hover img.especificas{
-   filter: brightness(0) invert(1); 
+   filter: brightness(0) invert(1);
 } */
 
 .contenedor-botones {
@@ -134,4 +134,27 @@ h2 {
 
 td.estado {
   text-align: center;
+}
+
+.contenido-tabla:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
+.contenido-tabla:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+
+.contenido-tabla:hover {
+  background-color: rgb(219, 219, 219) !important;
+  transition: background-color 0.3s ease;
+}
+
+
+.contenido-tabla:hover td.critica,
+.contenido-tabla:hover td.alta,
+.contenido-tabla:hover td.media,
+.contenido-tabla:hover td.baja {
+  box-shadow: inset 0 0 0 3px rgb(219, 219, 219);
+  transition: box-shadow 0.3s ease;
 }

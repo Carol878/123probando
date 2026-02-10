@@ -15,7 +15,7 @@
   background-color: #ffffff;
   border-radius: 2px;
   transition: all 0.1s ease;
-  
+
 }
 
 .sidebar-oculta {
@@ -100,4 +100,56 @@ img.especificas {
 .espejo{
   transform: rotateY(180deg);
 }
+
+
+
+/* Cubrimos la pantalla y reducimos opacidad */
+.contendor-inactividad {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Tarjeta de advertencia */
+.contendor-card {
+  background-color: white;
+  padding: 30px;
+  border-radius: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  border: 1px solid black;
+}
+
+/* Título */
+.contendor-card h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 24px;
+}
+
+/* Párrafo */
+.contendor-card p {
+  margin-bottom: 25px;
+  color: #666;
+  font-size: 16px;
+}
+
+.contenedor-botones {
+  margin-top: 15px;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+
 

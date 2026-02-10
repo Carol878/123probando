@@ -4,7 +4,6 @@ import { Pipe, PipeTransform } from '@angular/core';
 //Decoramos con @Pipe y definimos el nombre que queremos luego usar.
 @Pipe({
   name: 'truncar',
-  standalone: true
 })
 export class TruncatePipe implements PipeTransform {
   // Implementamos transform que es obligatorio y le ponemos que cuando se le llame va a recibir si o si un string y de manera opciona un número de caracteres si no se indica nada serán 50.

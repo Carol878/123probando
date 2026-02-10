@@ -29,9 +29,16 @@ export class AppService {
     const password = localStorage.getItem('password');
     if (hayAlguienLogeado) {
       this.logeado.set(JSON.parse(hayAlguienLogeado));
-      this.usuarioValido.set(JSON.parse(usuarioLogeado!) as Usuario);
       this.username.set(JSON.parse(username!));
       this.password.set(JSON.parse(password!));
+    }
+
+    if (usuarioLogeado) {
+      try {
+        this.usuarioValido.set(JSON.parse(usuarioLogeado) as Usuario);
+      } catch (e) {
+        this.usuarioValido.set(undefined);
+      }
     }
   }
 
@@ -43,6 +50,12 @@ export class AppService {
   setLogeado(valor: boolean) {
     this.logeado.set(valor);
     localStorage.setItem('logeado', JSON.stringify(valor));
+    if (!valor) {
+      // Limpiar localStorage
+      localStorage.removeItem('usuario');
+      localStorage.removeItem('username');
+      localStorage.removeItem('password');
+    }
   }
 
   //Guardamos el usuario cuando sea valido

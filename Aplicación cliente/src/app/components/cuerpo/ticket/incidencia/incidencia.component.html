@@ -5,7 +5,7 @@
       ><img class="especificas" src="cancelar.png" alt="Imagen de lupa"
     /></span>
   </button>
-
+  @if (coincideGrupoConGrupoAsignado() || ticket.abiertoPor.username === usuarioLogeado()?.username) {
   <button appButton (click)="alGuardarYSalir()">
     Guardar y salir
     <span ngProjectAs="icono"
@@ -19,7 +19,8 @@
       ><img class="especificas" src="guardar.png" alt="Imagen de disco"
     /></span>
   </button>
-  @if (coincideUsuarioConAsignado()) {
+}
+  @if (coincideUsuarioConAsignado() && coincideGrupoConGrupoAsignado()) {
     <button appButton (click)="alResolver()">
       Resolver
       <span ngProjectAs="icono"
@@ -53,83 +54,180 @@
           formControlName="descripcion"
         ></textarea>
       </div>
+      <div class="separacion-Y"></div>
 
       <div class="form-row">
         <label for="estado">Estado:</label>
-        <input type="text" id="estado" name="estado" required formControlName="estado" />
+        <input
+          class="input-corto"
+          type="text"
+          id="estado"
+          name="estado"
+          required
+          formControlName="estado"
+        />
+        <div class="separacion-X"></div>
         <label for="abiertoPor">Abierto por:</label>
         <input
+          class="input-medio"
           type="text"
           id="abiertoPor"
           name="abiertoPor"
           required
           formControlName="abiertoPor"
         />
-      </div>
-
-      <div class="form-row">
+        <div class="separacion-X"></div>
         <label for="prioridad">Prioridad:</label>
-        <input type="text" id="prioridad" name="prioridad" required formControlName="prioridad" />
-        <label for="areaAfectada">Área Afectada:</label>
-        <select id="areaAfectada" name="areaAfectada" required formControlName="areaAfectada">
-          @for (area of areas(); track $index) {
-            <option [value]="area.nombreArea">{{ area.nombreArea }}</option>
-          }
-        </select>
+        <input
+          class="input-corto input-prioridad"
+          [class.critica]="miFormulario.get('prioridad')?.value === 'Crítica'"
+          [class.alta]="miFormulario.get('prioridad')?.value === 'Alta'"
+          [class.media]="miFormulario.get('prioridad')?.value === 'Media'"
+          [class.baja]="miFormulario.get('prioridad')?.value === 'Baja'"
+          type="text"
+          id="prioridad"
+          name="prioridad"
+          required
+          formControlName="prioridad"
+        />
       </div>
 
       <div class="form-row">
         <label for="fechaApertura">Fecha Apertura:</label>
         <input
+          class="input-corto"
           type="text"
           id="fechaApertura"
           name="fechaApertura"
-          [value]="miFormulario.get('fechaApertura')!.value | date: 'short'"
+          [value]="miFormulario.get('fechaApertura')!.value | date: 'dd/MM/yyyy HH:mm'"
           required
           disabled
         />
+        <div class="separacion-X"></div>
         <label for="fechaCierre">Fecha Cierre:</label>
         <input
+          class="input-corto"
           type="text"
           id="fechaCierre"
           name="fechaCierre"
-          [value]="miFormulario.get('fechaCierre')!.value | date: 'short'"
+          [value]="miFormulario.get('fechaCierre')!.value | date: 'dd/MM/yyyy HH:mm'"
           disabled
         />
+        <div class="separacion-X"></div>
         <label for="fechaLimite">Fecha Límite:</label>
         <input
+          class="input-corto"
           type="text"
           id="fechaLimite"
           name="fechaLimite"
-          [value]="miFormulario.get('fechaLimite')!.value | date: 'short'"
+          [value]="miFormulario.get('fechaLimite')!.value | date: 'dd/MM/yyyy HH:mm'"
           disabled
         />
       </div>
 
+      <div class="separacion-Y"></div>
+
       <div class="form-row">
+        <label for="areaAfectada">Área Afectada:</label>
+        <select
+          class="input-medio"
+          id="areaAfectada"
+          name="areaAfectada"
+          required
+          formControlName="areaAfectada"
+        >
+          @for (area of areas(); track $index) {
+            <option [value]="area.nombreArea">{{ area.nombreArea }}</option>
+          }
+        </select>
+        <div class="separacion-X"></div>
         <label for="grupo">Grupo:</label>
-        <select type="text" id="grupo" name="grupo" formControlName="grupo">
+        <select class="input-medio" type="text" id="grupo" name="grupo" formControlName="grupo">
           @for (grupo of grupos(); track $index) {
             <option [value]="grupo.idGrupo">{{ grupo.nombreGrupo }}</option>
           }
         </select>
+        <div class="separacion-X-max"></div>
         <label for="asignatario">Asignado:</label>
-        <select type="text" id="asignatario" name="asignatario" formControlName="asignatario">
+        <select
+          class="input-medio"
+          type="text"
+          id="asignatario"
+          name="asignatario"
+          formControlName="asignatario"
+        >
           @for (usuario of usuarios(); track $index) {
             <option [value]="usuario.username">{{ usuario.username }}</option>
           }
         </select>
       </div>
     </div>
+    <div class="separacion-Y"></div>
+    @if (coincideUsuarioConAsignado() && coincideGrupoConGrupoAsignado() || ticket.abiertoPor.username === usuarioLogeado()?.username) {
+      <div class="contenedor-botones">
+        <button appButton (click)="alAnadirComentario()">
+          Añadir Comentario
+          <span ngProjectAs="icono"
+            ><img class="especificas" src="anadir-nota.png" alt="Imagen de lupa"
+          /></span>
+        </button>
+      </div>
+      @if (mostrarTextAreaParaComentario()) {
+        <div class="comentarios">
+          <textarea
+            placeholder="Introduce aquí tu comentario..."
+            rows="3"
+            [formControl]="formularioDeComentarios"
+          ></textarea>
+        </div>
+      }
+    }
+
+    <div class="tabla-wrapper">
+      <table class="tabla-actividades">
+        <thead>
+          <tr>
+            <th>Autor</th>
+            <th>Fecha</th>
+            <th>Grupo</th>
+            <th>Comentario</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (actividad of actividades(); track $index) {
+            <tr>
+              <td>{{ actividad.autor.username }}</td>
+              <td>
+                {{ actividad.fechaComentario | date: 'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td>{{ actividad.autor.grupo.nombreGrupo }}</td>
+              <td>{{ actividad.comentario }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   } @else {
     <div class="form-row">
       <label for="tipoCierre">Tipo Cierre:</label>
-      <select type="text" id="tipoCierre" name="tipoCierre" formControlName="tipoCierre">
+      <select
+        type="text"
+        id="tipoCierre"
+        name="tipoCierre"
+        formControlName="tipoCierre"
+        [class.obligatorio]="resolviendoEsObligatorioCss()"
+      >
         @for (tipo of tiposCierre(); track $index) {
           <option [value]="tipo.nombreArea">{{ tipo.nombreArea }}</option>
         }
       </select>
     </div>
+    @if (resolviendoEsObligatorioCss()) {
+      <span class="mensaje-obligatorio"
+      >* Es obligatorio cumplimentar este campo para resolver el ticket</span
+    > <br><br>
+    }
+
 
     <div class="form-row">
       <label for="comentarioCierre">Comentario cierre:</label>
@@ -139,45 +237,16 @@
         rows="3"
         cols="50"
         formControlName="comentarioCierre"
+        [class.obligatorio]="resolviendoEsObligatorioCss()"
       ></textarea>
     </div>
-  }
+    @if (resolviendoEsObligatorioCss()) {
+      <span class="mensaje-obligatorio"
+      >* Es obligatorio cumplimentar este campo para resolver el ticket</span
+    >
+    }
 
-  @if (coincideUsuarioConAsignado()) {
-    <div class="contenedor-botones">
-      <button appButton (click)="alAnadirComentario()">
-        Añadir Comentario
-        <span ngProjectAs="icono"
-          ><img class="especificas" src="anadir-nota.png" alt="Imagen de lupa"
-        /></span>
-      </button>
-    </div>
   }
-
-  <div class="tabla-wrapper">
-    <table class="tabla-actividades">
-      <thead>
-        <tr>
-          <th>Autor</th>
-          <th>Fecha</th>
-          <th>Grupo</th>
-          <th>Comentario</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (actividad of actividades(); track $index) {
-          <tr>
-            <td>{{ actividad.autor.username }}</td>
-            <td>
-              {{ actividad.fechaComentario | date: 'dd/MM/yyyy HH:mm' }}
-            </td>
-            <td>{{ actividad.autor.grupo.nombreGrupo }}</td>
-            <td>{{ actividad.comentario }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
 </form>
 
 <!-- <div class="contenedor-botones-debajo">

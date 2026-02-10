@@ -1,24 +1,20 @@
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { TicketsService } from '../../../../services/tickets.service';
 import { BotonComponent } from '../../../compartida/boton.component/boton.component';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ɵInternalFormsSharedModule,
-} from '@angular/forms';
-import { DatePipe, JsonPipe } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import { AreaService } from '../../../../services/area.service';
 import { TipoCierreService } from '../../../../services/tipo-cierre.service';
 import { GrupoService } from '../../../../services/grupo.service';
 import { UsuarioService } from '../../../../services/usuario.service';
-import { Incidencia, Ticket } from '../../tickets/ticket.model';
+import { Incidencia } from '../../tickets/ticket.model';
 import { Usuario } from '../../../../../model/usuario.model';
 import { Grupo } from '../../../../../model/grupo.model';
-import { take } from 'rxjs';
 import { IncidenciaSalidaDto, TicketSalidaDto } from '../../../../../model/ticket-salida-dto.model';
-import { ActividadIncidencia } from '../../../../../model/actividad-incidencia.model';
 import { AppService } from '../../../../services/app.service';
+import { timestamp } from 'rxjs';
+import { ActividadIncidencia } from '../../../../../model/actividad-incidencia.model';
+import { ActividadIncidenciaDto } from '../../../../../model/actividad-incidencia-dto.model';
 
 @Component({
   selector: 'app-incidencia',
@@ -27,6 +23,8 @@ import { AppService } from '../../../../services/app.service';
   styleUrl: './incidencia.component.css',
 })
 export class IncidenciaComponent implements OnInit {
+
+
   //Cargamos las areas posibles
   areaService = inject(AreaService);
   areas = this.areaService.getAreas();
@@ -57,15 +55,25 @@ export class IncidenciaComponent implements OnInit {
   usuarioLogeado = this.appService.getUsuarioValido();
 
   coincideUsuarioConAsignado = signal(
-    this.ticket?.asignatario?.username === this.usuarioLogeado()?.username,
+    this.ticket?.asignatario?.username === this.usuarioLogeado()?.username
+  );
+
+  coincideGrupoConGrupoAsignado= signal(
+    this.ticket?.grupo.idGrupo === this.usuarioLogeado()?.grupo.idGrupo
   );
 
   //Variables para gestionar si mostramos el menu de resovler
 
   resolver = signal(false);
 
+  //Variable para gestionar si mostramos el menu de resolver
+
+  mostrarTextAreaParaComentario = signal(false);
+  formularioDeComentarios = new FormControl<string>('', { nonNullable: true });
+
   //Creamos un signal para luego leerlo con el effect
   private ticketActualizadoSig = this.ticketsService.getTicketActualizado();
+
 
   constructor() {
     // Creamos un effect que se activara cuando se actualice el ticket
@@ -79,26 +87,112 @@ export class IncidenciaComponent implements OnInit {
         this.coincideUsuarioConAsignado.set(
           this.ticket?.asignatario?.username === this.usuarioLogeado()?.username,
         );
+        this.coincideGrupoConGrupoAsignado.set(
+          this.ticket?.grupo.idGrupo === this.usuarioLogeado()?.grupo.idGrupo
+        )
       }
     });
+
+
+
   }
+
+  //variable para limpiar asignatario cuando se escala
+  grupoAnterior = signal(this.ticket.grupo.idGrupo);
 
   //FUnción para ir hacia atars y volver a mostrar todos los tickets
   alCancelar() {
     if (this.resolver()) {
       this.resolver.set(false);
+      this.resolviendoEsObligatorioCss.set(false);
     } else {
       this.ticketsService.mostrarTickets();
+      this.ticketsService.setActividadesTicket();
     }
   }
+
+  //SIGNAL PARA OBLIGATORIEDAD DE CAMPOS DE RESOLUCIÓN
+
+  resolviendoEsObligatorioCss = signal(false);
+
   //Funcion para guardar
   alGuardar() {
-    this.ticketsService.actualizarTicket(this.crearIncidenciaDeFormulario());
+    const nuevaIncidencia= this.crearIncidenciaDeFormulario();
+
+    if (!this.resolver()){
+
+      this.guardarTicket(nuevaIncidencia);
+
+    }else{
+      const tipoCierreValor = this.miFormulario.get('tipoCierre')?.value;
+      const comentarioCierreValor = this.miFormulario.get('comentarioCierre')?.value;
+
+      if (!tipoCierreValor || !comentarioCierreValor?.trim()) {
+
+        this.resolviendoEsObligatorioCss.set(true);
+        return;
+      }
+
+      // Si todo está bien, resetear el CSS y guardar
+      this.resolviendoEsObligatorioCss.set(false);
+      this.guardarTicket(nuevaIncidencia);
+    }
+
   }
 
+
+
+
+
+  guardarTicket(nuevaIncidencia: TicketSalidaDto){
+
+    if(this.grupoAnterior() != nuevaIncidencia.grupoId){
+      this.grupoAnterior.set(nuevaIncidencia.grupoId as number);
+      this.miFormulario.controls['asignatario'].reset();
+      nuevaIncidencia.asignatarioUsername = "";
+    }
+
+    this.ticketsService.actualizarTicket(nuevaIncidencia);
+    //obtenemos el comentario si hay para hacer el insert en la BBDD ignoramos los espacios en blanco con trim
+    const comentario = this.formularioDeComentarios?.value?.trim();
+    if (comentario) {
+      const nuevaActividad: ActividadIncidenciaDto = {
+        autor: this.appService.getUsuarioValido()()!.username,
+        comentario: comentario,
+        idTicket: this.ticket.idTicket as number,
+      };
+
+      this.ticketsService.anadirComentarioATicket(nuevaActividad);
+
+      this.formularioDeComentarios.reset('');
+      this.mostrarTextAreaParaComentario.set(false);
+  }}
+
+
   alGuardarYSalir() {
-    this.ticketsService.actualizarTicket(this.crearIncidenciaDeFormulario());
+    const nuevaIncidencia= this.crearIncidenciaDeFormulario();
+
+    if (!this.resolver()){
+
+      this.guardarTicket(nuevaIncidencia);
+
+    }else{
+      const tipoCierreValor = this.miFormulario.get('tipoCierre')?.value;
+      const comentarioCierreValor = this.miFormulario.get('comentarioCierre')?.value;
+
+      if (!tipoCierreValor || !comentarioCierreValor?.trim()) {
+
+        this.resolviendoEsObligatorioCss.set(true);
+        return;
+      }
+
+      // Si todo está bien, resetear el CSS y guardar
+      this.resolviendoEsObligatorioCss.set(false);
+      this.guardarTicket(nuevaIncidencia);
+    }
     this.ticketsService.mostrarTickets();
+    this.ticketsService.setActividadesTicket();
+
   }
 
   alResolver() {
@@ -106,7 +200,9 @@ export class IncidenciaComponent implements OnInit {
     this.ticketsService.actualizarTicket(this.crearIncidenciaDeFormulario());
   }
 
-  alAnadirComentario() {}
+  alAnadirComentario() {
+    this.mostrarTextAreaParaComentario.set(true);
+  }
 
   //Creamos el formualrio con los campos de tickets
   miFormulario = new FormGroup({

@@ -24,7 +24,7 @@
 
 /* Título */
 .card-title {
-  font-size: 2.25rem;
+  font-size: 1.75rem;
   font-weight: 800;
   margin: 0 0 1rem 0;
   letter-spacing: 0.4px;
@@ -88,9 +88,9 @@
 .logo-app {
   position: absolute;
   z-index: -1;
-  width: 560px;                 
-  left: 160px;   
-  transform: translate(-0%, -40%);              
+  width: 560px;
+  left: 160px;
+  transform: translate(-0%, -40%);
 }
 
 .logo-app img {
@@ -109,11 +109,11 @@
 
 .pila-login {
   margin-top: 80px;
-  position: relative;          
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translateX(10%);    
+  transform: translateX(10%);
 
 }
 

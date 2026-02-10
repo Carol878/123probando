@@ -8,6 +8,7 @@ import { Grupo } from '../../model/grupo.model';
 import { TicketsService } from './tickets.service';
 import { TicketSalidaDto } from '../../model/ticket-salida-dto.model';
 import { ActividadIncidencia } from '../../model/actividad-incidencia.model';
+import { ActividadIncidenciaDto } from '../../model/actividad-incidencia-dto.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,20 +41,13 @@ export class HttpService {
     return this.http.get<Grupo[]>(this.url + '/grupos/all', { headers });
   }
 
-  cargarUsuarios(grupo: Grupo) {
-    const body = {
-      idGrupo: grupo.idGrupo,
-      nombreGrupo: grupo.nombreGrupo,
-    };
-    const headers = this.contruirToken();
-    return this.http.post<Usuario[]>(this.url + '/usuarios/grupo', body, { headers });
-  }
-
-  // Metodo para crear tickets (Cambios, Incidencias, etc.)
-  crearTicket(endpoint: string, ticket: any) {
-    const headers = this.contruirToken(); // Añadimos seguridad
-    return this.http.post(this.url + '/tickets/' + endpoint, ticket, { headers });
-  }
+  cargarUsuarios(grupoId: number) {
+  const body = {
+    idGrupo: grupoId
+  };
+  const headers = this.contruirToken();
+  return this.http.post<Usuario[]>(this.url + '/usuarios/grupo', body, { headers });
+}
 
   contruirToken() {
     const basicToken = btoa(
@@ -93,6 +87,18 @@ export class HttpService {
     return this.http.put<Ticket>(this.url + '/tickets/incidencias/actualizar-uno', body, { headers });
   }
 
+   crearTicket(ticket: TicketSalidaDto) {
+    const body = ticket;
+    const headers = this.contruirToken();
+    return this.http.post<Ticket>(this.url + '/tickets/incidencias/', body, { headers });
+  }
+
+  anadirComentarioATicket(nuevaActividad: ActividadIncidenciaDto) {
+  const body = nuevaActividad;
+  const headers = this.contruirToken();
+  return this.http.post<ActividadIncidencia>(this.url + '/tickets/incidencias/nueva-actividad', body, { headers });
+  }
+
  buscarUnGrupo(idGrupo: number) {
     const headers = this.contruirToken();
     return this.http.post<Grupo>(this.url + '/grupos/uno', idGrupo, { headers });
@@ -103,7 +109,7 @@ export class HttpService {
     return this.http.post<Usuario>(this.url + '/usuarios/uno', username, { headers });
   }
 
-  buscarActividadesIncidencia(idTicket: string) {
+  buscarActividadesIncidencia(idTicket: number) {
     const headers = this.contruirToken();
     return this.http.get<ActividadIncidencia[]>(this.url + `/tickets/incidencias/${idTicket}/actividades`, { headers });
   }

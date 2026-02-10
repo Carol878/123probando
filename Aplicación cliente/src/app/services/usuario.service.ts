@@ -1,4 +1,4 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
 import { Grupo } from '../../model/grupo.model';
 import { HttpService } from './http.service';
 import { Usuario } from '../../model/usuario.model';
@@ -21,9 +21,28 @@ export class UsuarioService {
   private destroyRef = inject(DestroyRef);
 
   constructor() {
-    const subscripcion = this.httpService.cargarUsuarios(this.ticketsService.getVisualizarTicket()!.grupo).subscribe((usuarios) => {next: this.usuarios.set(usuarios)})
+    // Usar effect para reaccionar a cambios en el ticket
+    effect(() => {
+      const ticket = this.ticketsService.getVisualizarTicketSignal()();
+      if (ticket?.grupo?.idGrupo) {
+        this.cargarUsuariosPorGrupoId(ticket.grupo.idGrupo);
+        console.log("asignado al grupo ", ticket.grupo.idGrupo );
+
+      }
+    });
+  }
+
+  cargarUsuariosPorGrupoId(grupoId: number) {
+
+    const subscripcion = this.httpService.cargarUsuarios(grupoId).subscribe({
+      next: (usuarios) => {
+        this.usuarios.set(usuarios);
+        console.log(usuarios);
+
+      }
+    });
+
     this.destroyRef.onDestroy(() => subscripcion.unsubscribe());
-    console.log(this.usuarios())
   }
 
   //Y las devolvemos

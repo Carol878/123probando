@@ -23,6 +23,6 @@ import lombok.Setter;
 public class Incidencia extends ATicket{
 	
 	@Column(name ="fecha_limite")
-	  private LocalDate fechaLimite;
+	  private LocalDateTime fechaLimite;
 
 }

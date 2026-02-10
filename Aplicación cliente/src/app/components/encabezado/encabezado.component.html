@@ -13,11 +13,39 @@
   <div class="centro">
     <button (click)="cambiarTicketVisible()" class="principal">
       <!-- <img class="logo-app" src="logo-app.png" alt="Logo apliacion"> -->
-      <h3>SERVICE MANAGER - ( PORTAL TÉCNICO )</h3>
+      <h3>SERVICE ADMINISTRATOR - ( PORTAL TÉCNICO )</h3>
     </button>
   </div>
 
-  <div class="derecha">
-    <img class="user-icon" src="logout.png" alt="Icono User" (click)="cerrarSesion()" />
+  <div class="user-wrapper">
+
+    <button appButton class="usuario-button" (click)="mostrarRecuadro()">{{usuarioLogeado()?.username}}
+
+      <span ngProjectAs="icono"
+            ><img class="especificas" src="user-icon.png" alt="Imagen de usuario"
+          /></span>
+    </button>
+
+
+    <div class="recuadro-usuario" [class.visible]="recuadro()">
+      <div class="info-personal">
+      <p>{{ usuarioLogeado()?.nombre | titlecase }} - Grupo {{usuarioLogeado()?.grupo?.nombreGrupo}}</p>
+
+      <a href="">{{ usuarioLogeado()?.email }}</a>
+
+      </div>
+
+      <div class="contenedor-botones">
+        <button appButton (click)="alCerrarSesion()">
+          Cerrar sesión
+          <span ngProjectAs="icono"
+            ><img class="especificas2" src="logout2.png" alt="Imagen de resolver"
+          /></span>
+        </button>
+        <button appButton (click)="mostrarRecuadro()">
+          Cancelar
+        </button>
+      </div>
+    </div>
   </div>
 </header>

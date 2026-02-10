@@ -1,84 +1,142 @@
-<div class="contenedor-formulario">
-  <h2>{{ ticketForm.get('categoria')?.value === 'CAMBIO' ? 'Solicitar Cambio' : 'Nuevo Ticket' }}</h2>
+<div class="contenedor-botones">
+  <button appButton (click)="alCancelar()">
+    Cancelar
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="cancelar.png" alt="Imagen de lupa"
+    /></span>
+  </button>
 
-  <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
-    <div class="fila">
-      <div class="campo">
-        <label for="categoria">Categoría:</label>
-        <select id="categoria" formControlName="categoria">
-          @for (cat of categorias; track cat) {
-            <option [value]="cat">{{ cat }}</option>
-          }
-        </select>
-      </div>
+  <button appButton (click)="alGuardarYSalir()">
+    Guardar y salir
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="guardar-y-salir.png" alt="Imagen de disco"
+    /></span>
+  </button>
 
-      <div class="campo">
-        <label for="prioridad">Prioridad:</label>
-        <select id="prioridad" formControlName="prioridad">
-          @for (prio of prioridades; track prio) {
-            <option [value]="prio">{{ prio }}</option>
-          }
-        </select>
-      </div>
-    </div>
-
-    <div class="fila-titulo">
-      <label for="titulo">Título:</label>
-      <input type="text" id="titulo" formControlName="titulo" placeholder="Resumen breve..." />
-    </div>
-
-    <div class="fila-descripcion">
-      <label for="descripcion">Descripción Detallada:</label>
-      <textarea id="descripcion" formControlName="descripcion" rows="4"></textarea>
-    </div>
-
-    @if (ticketForm.get('categoria')?.value === 'CAMBIO') {
-      <div class="grupo-cambio" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #0056b3;">
-        <h3>Detalles del Cambio ITIL</h3>
-
-        <div class="campo">
-          <label>Tipo de Cambio:</label>
-          <select formControlName="categoriaCambio">
-            @for (tipo of categoriasCambio; track tipo) {
-              <option [value]="tipo">{{ tipo }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="fila-descripcion">
-          <label>Plan de Implementación (¿Qué se va a hacer?):</label>
-          <textarea formControlName="planImplementacion" rows="3" placeholder="Pasos técnicos..."></textarea>
-        </div>
-
-        <div class="fila-descripcion">
-          <label>Plan de Marcha Atrás (Rollback):</label>
-          <textarea formControlName="planMarchaAtras" rows="3" placeholder="¿Qué hacer si falla?"></textarea>
-        </div>
-
-        <div class="fila-descripcion">
-          <label>Efecto de no implementar (Riesgo):</label>
-          <input type="text" formControlName="efectoNoImplementar" placeholder="¿Qué pasa si no hacemos esto?">
-        </div>
-      </div>
-    }
-
-    <div class="fila">
-      <div class="campo">
-        <label for="asignatario">Asignatario (Username):</label>
-        <input type="text" id="asignatario" formControlName="asignatario" placeholder="Ej: pgranados" />
-      </div>
-
-      <div class="campo">
-        <label for="area">Área Afectada:</label>
-        <input type="text" id="area" formControlName="areaAfectada" />
-      </div>
-    </div>
-
-    <div class="acciones">
-      <button type="button" class="boton-cancelar" (click)="cancelar()">Cancelar</button>
-      <button type="submit" class="boton-guardar" [disabled]="ticketForm.invalid">
-        Crear Ticket
-      </button>
-    </div>
-  </form>
+  <button appButton (click)="alGuardar()">
+    Guardar
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="guardar.png" alt="Imagen de disco"
+    /></span>
+  </button>
 </div>
+
+<form [formGroup]="miFormulario">
+  <h3>Nuevo registro de Incidencia:</h3>
+
+  <hr />
+  <br />
+
+  <div class="form-container">
+    <div class="form-row">
+      <label for="titulo">Título:</label>
+      <input type="text" id="titulo" name="titulo" required formControlName="titulo" />
+    </div>
+
+    <div class="form-row">
+      <label for="descripcion">Descripción:</label>
+      <textarea
+        id="descripcion"
+        name="descripcion"
+        rows="4"
+        cols="50"
+        required
+        formControlName="descripcion"
+      ></textarea>
+    </div>
+    <div class="separacion-Y"></div>
+
+    <div class="form-row">
+      <label for="estado">Estado:</label>
+      <input
+        class="input-corto"
+        type="text"
+        id="estado"
+        name="estado"
+        required
+        formControlName="estado"
+      />
+      <div class="separacion-X"></div>
+      <label for="abiertoPor">Abierto por:</label>
+      <input
+        class="input-corto"
+        type="text"
+        id="abiertoPor"
+        name="abiertoPor"
+        required
+        formControlName="abiertoPor"
+      />
+      <div class="separacion-X"></div>
+      <label for="prioridad">Prioridad:</label>
+
+      <select
+        class="input-corto"
+        type="text"
+        id="prioridad"
+        name="prioridad"
+        required
+        formControlName="prioridad"
+        [class.critica]="miFormulario.get('prioridad')?.value === 'Crítica'"
+        [class.alta]="miFormulario.get('prioridad')?.value === 'Alta'"
+        [class.media]="miFormulario.get('prioridad')?.value === 'Media'"
+        [class.baja]="miFormulario.get('prioridad')?.value === 'Baja'"
+        (change)="actualizarFechaLimite()"
+      >
+        @for (prioridad of prioridades(); track $index) {
+          <option [value]="prioridad">{{ prioridad }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="fechaApertura">Fecha Apertura:</label>
+      <input
+        class="input-corto"
+        type="text"
+        id="fechaApertura"
+        name="fechaApertura"
+        [value]="miFormulario.get('fechaApertura')!.value | date: 'dd/MM/yyyy HH:mm'"
+        required
+        disabled
+      />
+      <div class="separacion-X"></div>
+
+      <label for="fechaLimite">Fecha Límite:</label>
+      <input
+        class="input-corto"
+        type="text"
+        id="fechaLimite"
+        name="fechaLimite"
+        [value]="miFormulario.get('fechaLimite')!.value | date: 'dd/MM/yyyy HH:mm'"
+        disabled
+      />
+    </div>
+
+    <div class="separacion-Y"></div>
+
+    <div class="form-row">
+      <label for="areaAfectada">Área Afectada:</label>
+      <select
+        class="input-corto"
+        id="areaAfectada"
+        name="areaAfectada"
+        required
+        formControlName="areaAfectada"
+      >
+        @for (area of areas(); track $index) {
+          <option [value]="area.nombreArea">{{ area.nombreArea }}</option>
+        }
+      </select>
+      <div class="separacion-X"></div>
+      <label for="grupo">Grupo:</label>
+      <select class="input-corto" type="text" id="grupo" name="grupo" formControlName="grupo">
+        @for (grupo of grupos(); track $index) {
+          <option [value]="grupo.idGrupo">{{ grupo.nombreGrupo }}</option>
+        }
+      </select>
+      <div class="separacion-X-max"></div>
+
+    </div>
+  </div>
+  <div class="separacion-Y"></div>
+</form>

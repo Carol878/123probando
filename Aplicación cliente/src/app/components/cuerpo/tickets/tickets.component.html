@@ -13,11 +13,14 @@
     }
     @case ("petición") {
       <h2>Peticiones</h2>
-  
+
     }
     @case ("problema") {
       <h2>Problemas</h2>
-      
+
+    }
+    @case ("abiertas"){
+      <h2>Tickets en curso abierto por mi</h2>
     }
   }
 
@@ -36,8 +39,16 @@
           /></span>
         </button>
 
-  @if (tipoDeTicket()!="todos"){
-      
+  <button appButton appExport [valores]="ticketsAExportar()">
+          Exportar
+          <span ngProjectAs="icono"
+            ><img class="especificas" src="exportar.png" alt="Imagen de export"
+          /></span>
+        </button>
+
+
+  @if (tipoDeTicket()!="todos" && tipoDeTicket()!="abiertas"){
+
         <!-- Boton con directiva button para no repetir la estructa más de lo necesario -->
         <button appButton (click)="mostrarFormularioBusqueda()">
           Buscar {{tipoDeTicket()}}
@@ -45,14 +56,14 @@
             ><img class="especificas" src="lupa.png" alt="Imagen de lupa"
           /></span>
         </button>
-  
+
         <button appButton (click)="mostrarFormularioNuevo()">
-          Abrir {{tipoDeTicket()}}
+          Crear {{tipoDeTicket()}}
           <span ngProjectAs="icono"
             ><img class="especificas" src="abrirticket.png" alt="Imagen de auriculares de soporte"
           /></span>
         </button>
-      
+
       }
     </div>
 </div>
@@ -85,8 +96,10 @@
       <td class="categoria">{{ ticket.categoriaTicket | titlecase }}</td>
       <td>{{ ticket.titulo | truncar : 20 }}</td>
       <td>{{ ticket.descripcion | truncar : 40 }}</td>
-      <td>{{ ticket.fechaApertura | date : 'short' }}</td>
-      <td>{{ ticket.asignatario?.username }}</td>
+      <td>{{ ticket.fechaApertura |date: 'dd/MM/yyyy HH:mm'  }}</td>
+      @if (ticket.asignatario?.grupo?.idGrupo === usuarioLogeado()?.grupo?.idGrupo) {<td>{{ ticket.asignatario?.username }}</td>}@else{
+        <td></td>
+      }
       <td>{{ ticket.grupo.nombreGrupo }}</td>
       <td  class="estado">{{ ticket.estado }}</td>
       <td>{{ ticket.areaAfectada }}</td>
@@ -98,8 +111,10 @@
       <td class="categoria">{{ ticket.categoriaTicket | titlecase }}</td>
       <td>{{ ticket.titulo | truncar : 20 }}</td>
       <td>{{ ticket.descripcion | truncar : 40 }}</td>
-      <td>{{ ticket.fechaApertura | date : 'short' }}</td>
-      <td>{{ ticket.asignatario?.username }}</td>
+      <td>{{ ticket.fechaApertura | date: 'dd/MM/yyyy HH:mm' }}</td>
+      @if (ticket.asignatario?.grupo?.idGrupo === usuarioLogeado()?.grupo?.idGrupo) {<td>{{ ticket.asignatario?.username }}</td>}@else{
+        <td></td>
+      }
       <td>{{ ticket.grupo.nombreGrupo }}</td>
       <td class="estado">{{ ticket.estado }}</td>
       <td>{{ ticket.areaAfectada }}</td>

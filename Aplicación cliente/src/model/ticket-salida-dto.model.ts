@@ -4,7 +4,7 @@ import { Usuario } from "./usuario.model";
 
 // Interface base con campos comunes
 export interface TicketSalidaDto {
-  idTicket: string;
+  idTicket: number;
   categoriaTicket: string;
   titulo: string;
   descripcion: string;

@@ -18,5 +18,9 @@ export const funcionesPrincipales = [
   {
     "nombre": "problemas",
     "categoria": "problema"
+  },
+  {
+    "nombre": "abiertos por mi",
+    "categoria": "abiertas"
   }
 ]

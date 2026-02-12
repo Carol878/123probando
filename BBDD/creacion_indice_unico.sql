@@ -1,159 +1,168 @@
-
 -- Usar la base de datos
 USE service_manager_db;
 
--- Desactivar el modo seguro para permitir actualizaciones controladas
+-- Desactivar el modo seguro
 SET SQL_SAFE_UPDATES = 0;
 
+-- ========== INCIDENCIAS ==========
+-- Borrar columna si existe (ignorar error si no)
+ALTER TABLE incidencias DROP COLUMN codigo_ticket;
 
--- 1) Añadir la columna (NULLable para permitir AFTER INSERT)
+-- Añadir la columna
 ALTER TABLE incidencias
   ADD COLUMN codigo_ticket VARCHAR(12) NULL;
 
--- 2) Rellenar para filas existentes
+-- Rellenar para filas existentes
 UPDATE incidencias
 SET codigo_ticket = CONCAT('INC', '-', LPAD(id_ticket, 5, '0'))
-WHERE codigo_ticket IS NULL
-  AND id_ticket IS NOT NULL;
+WHERE id_ticket IS NOT NULL;
 
--- 3) Índice único sobre el código
-ALTER TABLE incidencias
-  ADD UNIQUE KEY uq_incidencias_codigo (codigo_ticket);
-
--- 4) Triggers para autogenerar y proteger el código
+-- Borrar triggers si existen
 DROP TRIGGER IF EXISTS trg_incidencias_codigo_ai;
 DROP TRIGGER IF EXISTS trg_incidencias_codigo_bu;
+DROP TRIGGER IF EXISTS trg_incidencias_codigo_bi;
 
+-- Crear trigger BEFORE INSERT
 DELIMITER //
 
--- AFTER INSERT: calcula el código cuando ya existe el AUTO_INCREMENT
-CREATE TRIGGER trg_incidencias_codigo_ai
-AFTER INSERT ON incidencias
+CREATE TRIGGER trg_incidencias_codigo_bi
+BEFORE INSERT ON incidencias
 FOR EACH ROW
 BEGIN
-  UPDATE incidencias
-    SET codigo_ticket = CONCAT('INC', '-', LPAD(NEW.id_ticket, 5, '0'))
-    WHERE id_ticket = NEW.id_ticket;
-END//
+  DECLARE next_id INT;
   
--- BEFORE UPDATE: reestablece el código si alguien lo deja NULL o lo cambia
-CREATE TRIGGER trg_incidencias_codigo_bu
-BEFORE UPDATE ON incidencias
-FOR EACH ROW
-BEGIN
-  IF NEW.codigo_ticket IS NULL
-     OR NEW.codigo_ticket <> CONCAT('INC', '-', LPAD(NEW.id_ticket, 5, '0')) THEN
-    SET NEW.codigo_ticket = CONCAT('INC', '-', LPAD(NEW.id_ticket, 5, '0'));
+  -- Obtener el próximo valor de auto_increment
+  SELECT AUTO_INCREMENT INTO next_id
+  FROM information_schema.TABLES
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'incidencias';
+  
+  -- Si no se obtiene, usar 1
+  IF next_id IS NULL THEN
+    SET next_id = 1;
   END IF;
+  
+  SET NEW.codigo_ticket = CONCAT('INC', '-', LPAD(next_id, 5, '0'));
 END//
+
 DELIMITER ;
 
+-- Crear índice único (ignorar si ya existe)
+CREATE INDEX uq_incidencias_codigo ON incidencias(codigo_ticket);
+
+-- ========== PETICIONES ==========
+ALTER TABLE peticiones DROP COLUMN codigo_ticket;
 
 ALTER TABLE peticiones
   ADD COLUMN codigo_ticket VARCHAR(12) NULL;
 
 UPDATE peticiones
 SET codigo_ticket = CONCAT('RF', '-', LPAD(id_ticket, 5, '0'))
-WHERE codigo_ticket IS NULL
-  AND id_ticket IS NOT NULL;
-
-ALTER TABLE peticiones
-  ADD UNIQUE KEY uq_peticiones_codigo (codigo_ticket);
+WHERE id_ticket IS NOT NULL;
 
 DROP TRIGGER IF EXISTS trg_peticiones_codigo_ai;
 DROP TRIGGER IF EXISTS trg_peticiones_codigo_bu;
+DROP TRIGGER IF EXISTS trg_peticiones_codigo_bi;
 
 DELIMITER //
-CREATE TRIGGER trg_peticiones_codigo_ai
-AFTER INSERT ON peticiones
+
+CREATE TRIGGER trg_peticiones_codigo_bi
+BEFORE INSERT ON peticiones
 FOR EACH ROW
 BEGIN
-  UPDATE peticiones
-    SET codigo_ticket = CONCAT('RF', '-', LPAD(NEW.id_ticket, 5, '0'))
-    WHERE id_ticket = NEW.id_ticket;
+  DECLARE next_id INT;
+  
+  SELECT AUTO_INCREMENT INTO next_id
+  FROM information_schema.TABLES
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'peticiones';
+  
+  IF next_id IS NULL THEN
+    SET next_id = 1;
+  END IF;
+  
+  SET NEW.codigo_ticket = CONCAT('RF', '-', LPAD(next_id, 5, '0'));
 END//
 
-CREATE TRIGGER trg_peticiones_codigo_bu
-BEFORE UPDATE ON peticiones
-FOR EACH ROW
-BEGIN
-  IF NEW.codigo_ticket IS NULL
-     OR NEW.codigo_ticket <> CONCAT('RF', '-', LPAD(NEW.id_ticket, 5, '0')) THEN
-    SET NEW.codigo_ticket = CONCAT('RF', '-', LPAD(NEW.id_ticket, 5, '0'));
-  END IF;
-END//
 DELIMITER ;
 
+CREATE INDEX uq_peticiones_codigo ON peticiones(codigo_ticket);
+
+-- ========== PROBLEMAS ==========
+ALTER TABLE problemas DROP COLUMN codigo_ticket;
 
 ALTER TABLE problemas
   ADD COLUMN codigo_ticket VARCHAR(12) NULL;
 
 UPDATE problemas
 SET codigo_ticket = CONCAT('PM', '-', LPAD(id_ticket, 5, '0'))
-WHERE codigo_ticket IS NULL
-  AND id_ticket IS NOT NULL;
-
-ALTER TABLE problemas
-  ADD UNIQUE KEY uq_problemas_codigo (codigo_ticket);
+WHERE id_ticket IS NOT NULL;
 
 DROP TRIGGER IF EXISTS trg_problemas_codigo_ai;
 DROP TRIGGER IF EXISTS trg_problemas_codigo_bu;
+DROP TRIGGER IF EXISTS trg_problemas_codigo_bi;
 
 DELIMITER //
-CREATE TRIGGER trg_problemas_codigo_ai
-AFTER INSERT ON problemas
+
+CREATE TRIGGER trg_problemas_codigo_bi
+BEFORE INSERT ON problemas
 FOR EACH ROW
 BEGIN
-  UPDATE problemas
-    SET codigo_ticket = CONCAT('PM', '-', LPAD(NEW.id_ticket, 5, '0'))
-    WHERE id_ticket = NEW.id_ticket;
+  DECLARE next_id INT;
+  
+  SELECT AUTO_INCREMENT INTO next_id
+  FROM information_schema.TABLES
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'problemas';
+  
+  IF next_id IS NULL THEN
+    SET next_id = 1;
+  END IF;
+  
+  SET NEW.codigo_ticket = CONCAT('PM', '-', LPAD(next_id, 5, '0'));
 END//
 
-CREATE TRIGGER trg_problemas_codigo_bu
-BEFORE UPDATE ON problemas
-FOR EACH ROW
-BEGIN
-  IF NEW.codigo_ticket IS NULL
-     OR NEW.codigo_ticket <> CONCAT('PM', '-', LPAD(NEW.id_ticket, 5, '0')) THEN
-    SET NEW.codigo_ticket = CONCAT('PM', '-', LPAD(NEW.id_ticket, 5, '0'));
-  END IF;
-END//
 DELIMITER ;
+
+CREATE INDEX uq_problemas_codigo ON problemas(codigo_ticket);
+
+-- ========== CAMBIOS ==========
+ALTER TABLE cambios DROP COLUMN codigo_ticket;
 
 ALTER TABLE cambios
   ADD COLUMN codigo_ticket VARCHAR(12) NULL;
 
 UPDATE cambios
 SET codigo_ticket = CONCAT('C', '-', LPAD(id_ticket, 5, '0'))
-WHERE codigo_ticket IS NULL
-  AND id_ticket IS NOT NULL;
-
-ALTER TABLE cambios
-  ADD UNIQUE KEY uq_cambios_codigo (codigo_ticket);
+WHERE id_ticket IS NOT NULL;
 
 DROP TRIGGER IF EXISTS trg_cambios_codigo_ai;
 DROP TRIGGER IF EXISTS trg_cambios_codigo_bu;
+DROP TRIGGER IF EXISTS trg_cambios_codigo_bi;
 
 DELIMITER //
-CREATE TRIGGER trg_cambios_codigo_ai
-AFTER INSERT ON cambios
+
+CREATE TRIGGER trg_cambios_codigo_bi
+BEFORE INSERT ON cambios
 FOR EACH ROW
 BEGIN
-  UPDATE cambios
-    SET codigo_ticket = CONCAT('C', '-', LPAD(NEW.id_ticket, 5, '0'))
-    WHERE id_ticket = NEW.id_ticket;
+  DECLARE next_id INT;
+  
+  SELECT AUTO_INCREMENT INTO next_id
+  FROM information_schema.TABLES
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'cambios';
+  
+  IF next_id IS NULL THEN
+    SET next_id = 1;
+  END IF;
+  
+  SET NEW.codigo_ticket = CONCAT('C', '-', LPAD(next_id, 5, '0'));
 END//
 
-CREATE TRIGGER trg_cambios_codigo_bu
-BEFORE UPDATE ON cambios
-FOR EACH ROW
-BEGIN
-  IF NEW.codigo_ticket IS NULL
-     OR NEW.codigo_ticket <> CONCAT('C', '-', LPAD(NEW.id_ticket, 5, '0')) THEN
-    SET NEW.codigo_ticket = CONCAT('C', '-', LPAD(NEW.id_ticket, 5, '0'));
-  END IF;
-END//
 DELIMITER ;
 
--- Rehabilitar el modo seguro al final
+CREATE INDEX uq_cambios_codigo ON cambios(codigo_ticket);
+
+-- Rehabilitar el modo seguro
 SET SQL_SAFE_UPDATES = 1;

@@ -11,6 +11,5 @@ public interface UsuarioService {
 	Usuario findById(String username);
 	Usuario findByUsernameAndPassword(String username, String password);
 	Usuario insertOne(Usuario usuario);
-	List<UsuarioSalidaDto> findAllDeGrupo(Grupo grupo);
-	List<Usuario> findAll();
+	List<UsuarioSalidaDto> findAllDeGrupo(int id);
 }

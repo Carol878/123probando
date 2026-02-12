@@ -42,11 +42,8 @@ export class HttpService {
   }
 
   cargarUsuarios(grupoId: number) {
-  const body = {
-    idGrupo: grupoId
-  };
   const headers = this.contruirToken();
-  return this.http.post<Usuario[]>(this.url + '/usuarios/grupo', body, { headers });
+  return this.http.get<Usuario[]>(this.url + '/usuarios/grupo/' + grupoId, { headers });
 }
 
   contruirToken() {

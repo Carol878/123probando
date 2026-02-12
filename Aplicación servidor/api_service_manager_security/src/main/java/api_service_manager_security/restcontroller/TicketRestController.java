@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import api_service_manager_security.model.dto.ActividadIncidenciaEntradaDto;
 import api_service_manager_security.model.dto.IncidenciaEntradaDto;
 import api_service_manager_security.model.entities.ATicket;
 import api_service_manager_security.model.entities.ActividadIncidencia;
@@ -22,20 +23,18 @@ import api_service_manager_security.model.entities.Cambio;
 import api_service_manager_security.model.entities.Incidencia;
 import api_service_manager_security.model.entities.Peticion;
 import api_service_manager_security.model.entities.Problema;
-import api_service_manager_security.model.entities.Usuario;
-import api_service_manager_security.service.*;
+import api_service_manager_security.service.ActividadIncidenciaService;
+import api_service_manager_security.service.CambioService;
+import api_service_manager_security.service.IncidenciaService;
+import api_service_manager_security.service.PeticionService;
+import api_service_manager_security.service.ProblemaService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-
-
-import java.time.LocalDate;
 
 @RestController
 @CrossOrigin(origins="*")
 @RequestMapping("/tickets")
 public class TicketRestController {
-
-    private final ProblemaServiceImplMy8Jpa problemaServiceImplMy8Jpa;
 
 	//https://stackoverflow.com/questions/54478941/persistencecontext-is-not-applicable-to-parameters-how-to-inject-entitymanager
 	@PersistenceContext
@@ -51,89 +50,6 @@ public class TicketRestController {
 	private CambioService cambioService;
 	@Autowired
 	private ActividadIncidenciaService actividadIncidenciaService;
-
-    TicketRestController(ProblemaServiceImplMy8Jpa problemaServiceImplMy8Jpa) {
-        this.problemaServiceImplMy8Jpa = problemaServiceImplMy8Jpa;
-    }
-	
-	@PostMapping("/cambios")
-    public ResponseEntity<?> crearCambio(@RequestBody Cambio cambio) {
-        // Asignamos la fecha si viene vacia
-		System.out.println("Llega");
-        if (cambio.getFechaApertura() == null) {
-            cambio.setFechaApertura( LocalDate.now());
-        }
-        
-        // Guardamos en BBDD usando el servicio ya inyectado
-        Cambio nuevoCambio = cambioService.insertOne(cambio); 
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoCambio);
-    }
-
-	@PostMapping("/incidencias")
-	public ResponseEntity<?> crearIncidencia(@RequestBody Incidencia incidencia) {
-
-		// 1. Fechas: Si no trae fecha de apertura, poner la actual
-		if (incidencia.getFechaApertura() == null) {
-			incidencia.setFechaApertura(LocalDate.now());
-		}
-
-		// 2. Vincular Usuarios y Grupo (Protección contra nulos)
-		// --- Creador ---
-		if (incidencia.getAbiertoPor() != null && incidencia.getAbiertoPor().getUsername() != null) {
-			Usuario creador = usuarioService.findById(incidencia.getAbiertoPor().getUsername());
-			if (creador != null) incidencia.setAbiertoPor(creador);
-			else return ResponseEntity.badRequest().body("Usuario creador no existe");
-		}
-
-		// --- Asignatario ---
-		if (incidencia.getAsignatario() != null && incidencia.getAsignatario().getUsername() != null) {
-			Usuario tecnico = usuarioService.findById(incidencia.getAsignatario().getUsername());
-			if (tecnico != null) incidencia.setAsignatario(tecnico);
-			else incidencia.setAsignatario(null); // Si no existe, lo dejamos null
-		} else {
-			incidencia.setAsignatario(null);
-		}
-
-		// --- Grupo ---
-		if (incidencia.getGrupo() != null && incidencia.getGrupo().getIdGrupo() != null) {
-			Grupo grupo = grupoService.findById(incidencia.getGrupo().getIdGrupo());
-			if (grupo != null) incidencia.setGrupo(grupo);
-			else incidencia.setGrupo(null);
-		}
-
-		// 3. Generación de Código (INC-X)
-		// Primer guardado para obtener ID
-		Incidencia ticketGuardado = incidenciaService.insertOne(incidencia);
-
-		// Generar código y actualizar
-		String codigoGenerado = "INC-" + ticketGuardado.getIdTicket();
-		ticketGuardado.setCodigoTicket(codigoGenerado);
-
-		// Segundo guardado
-		ticketGuardado = incidenciaService.insertOne(ticketGuardado);
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(ticketGuardado);
-	}
-
-    // 3. Endpoint para PETICIONES
-    @PostMapping("/peticiones")
-    public ResponseEntity<?> crearPeticion(@RequestBody Peticion peticion) {
-        if (peticion.getFechaApertura() == null) {
-            peticion.setFechaApertura( LocalDate.now());
-        }
-        Peticion nueva = peticionService.insertOne(peticion);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
-    }
-    
-    // 4. Endpoint para PROBLEMAS
-    @PostMapping("/problemas")
-    public ResponseEntity<?> crearProblema(@RequestBody Problema problema) {
-        if (problema.getFechaApertura() == null) {
-            problema.setFechaApertura( LocalDate.now());
-        }
-        Problema nuevo = problemaService.insertOne(problema);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
-    }
 
 	@GetMapping("/all")
 	ResponseEntity<?> problemasTodos() {
@@ -171,7 +87,6 @@ public class TicketRestController {
 		return ResponseEntity.ok(actualizada);
 	}
 	
-	
 	@GetMapping("/incidencias/actividades")
 	ResponseEntity<?> todasActividadesIncidencia() {
 		List<ActividadIncidencia> lista= actividadIncidenciaService.findAll();
@@ -188,6 +103,29 @@ public class TicketRestController {
 			actividad.getAutor().setPassword(null);
 		}
 		return ResponseEntity.ok(lista);
+	}
+	
+	@PostMapping("/incidencias/nueva-actividad")
+	ResponseEntity<?> nuevaActividad(@RequestBody ActividadIncidenciaEntradaDto nuevaActividad) {
+
+		 try {
+		        ActividadIncidencia insertada = actividadIncidenciaService.insertFromDto(nuevaActividad);
+		        return ResponseEntity.ok(insertada);
+		    } catch (Exception e) {
+		        return ResponseEntity.status(404).body(e.getMessage());
+		    }
+
+	}
+
+	@PostMapping("incidencias/")
+	ResponseEntity<?> nuevaIncidencia (@RequestBody IncidenciaEntradaDto dto){
+		try {
+			Incidencia nuevaCreada = incidenciaService.insertFromDto(dto);
+			return ResponseEntity.ok(nuevaCreada);
+		} catch (Exception e) {
+			return ResponseEntity.status(404).body(e.getMessage());
+		}
+
 	}
 
 

@@ -68,7 +68,7 @@ export class FormularioNuevoComponent {
     this.ticketsService.crearTicket(this.crearIncidenciaDeFormulario())
   }
   alGuardarYSalir() {
-
+    this.ticketsService.crearTicketYSalir(this.crearIncidenciaDeFormulario())
 
   }
 

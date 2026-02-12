@@ -10,7 +10,9 @@ import api_service_manager_security.model.entities.Incidencia;
 import api_service_manager_security.model.repository.GrupoRepository;
 import api_service_manager_security.model.repository.IncidenciaRepository;
 import api_service_manager_security.model.repository.UsuarioRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class IncidenciaServiceImplMy8Jpa implements IncidenciaService{
@@ -21,6 +23,8 @@ public class IncidenciaServiceImplMy8Jpa implements IncidenciaService{
     private UsuarioRepository usuarioRepository;
     @Autowired 
     private GrupoRepository grupoRepository;
+    @Autowired
+    private EntityManager entityManager;
 
 
 	@Override
@@ -90,6 +94,50 @@ public class IncidenciaServiceImplMy8Jpa implements IncidenciaService{
         // Persistir
         return incidenciaRepository.save(existente);
     }
+
+@Transactional
+@Override
+public Incidencia insertFromDto(IncidenciaEntradaDto dto) {
+	Incidencia nueva = new Incidencia();
+
+    // Campos simples
+	nueva.setTitulo(dto.getTitulo());
+	nueva.setCategoriaTicket(dto.getCategoriaTicket());
+	nueva.setDescripcion(dto.getDescripcion());
+	nueva.setEstado(dto.getEstado());
+	nueva.setAreaAfectada(dto.getAreaAfectada());
+	nueva.setComentarioCierre(dto.getComentarioCierre());
+	nueva.setTipoCierre(dto.getTipoCierre());
+	nueva.setPrioridad(dto.getPrioridad());
+    nueva.setCodigoTicket(dto.getCodigoTicket());
+    nueva.setFechaApertura(dto.getFechaApertura());
+    nueva.setFechaCierre(dto.getFechaCierre());
+    nueva.setFechaLimite(dto.getFechaLimite());
+
+    // Rehidratación de relaciones vía repos
+    if (dto.getAsignatarioUsername() != null) {
+    	nueva.setAsignatario(
+            usuarioRepository.findById(dto.getAsignatarioUsername()).orElse(null));
+    } else {
+    	nueva.setAsignatario(null);
+    }
+
+    if (dto.getAbiertoPorUsername() != null) {
+    	nueva.setAbiertoPor(
+            usuarioRepository.findById(dto.getAbiertoPorUsername()).orElse(null));
+    }
+
+    if (dto.getGrupoId() != null) {
+    	nueva.setGrupo(
+            grupoRepository.findById(dto.getGrupoId()).orElse(null));
+    }
+    // Persistimos
+    Incidencia ticket = incidenciaRepository.save(nueva);
+    //Actualizamos lo que acabamos de recibir para que recoja el valor codigo_ticket que se genera con el before insert
+    entityManager.refresh(ticket);
+    
+    return ticket;
+}
 
 	
 	

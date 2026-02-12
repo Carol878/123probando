@@ -324,3 +324,230 @@ VALUES
 );
  
 commit;
+
+
+-- Usar la base de datos
+USE service_manager_db;
+
+-- Desactivar el modo seguro para permitir actualizaciones controladas
+SET SQL_SAFE_UPDATES = 0;
+
+
+-- 1) Añadir la columna (NULLable para permitir AFTER INSERT)
+ALTER TABLE incidencias
+  ADD COLUMN codigo_ticket VARCHAR(12) NULL;
+
+-- 2) Rellenar para filas existentes
+UPDATE incidencias
+SET codigo_ticket = CONCAT('INC', '-', LPAD(id_ticket, 5, '0'))
+WHERE codigo_ticket IS NULL
+  AND id_ticket IS NOT NULL;
+
+-- 3) Índice único sobre el código
+ALTER TABLE incidencias
+  ADD UNIQUE KEY uq_incidencias_codigo (codigo_ticket);
+
+-- 4) Triggers para autogenerar y proteger el código
+DROP TRIGGER IF EXISTS trg_incidencias_codigo_ai;
+DROP TRIGGER IF EXISTS trg_incidencias_codigo_bu;
+
+DELIMITER //
+
+-- AFTER INSERT: calcula el código cuando ya existe el AUTO_INCREMENT
+CREATE TRIGGER trg_incidencias_codigo_ai
+AFTER INSERT ON incidencias
+FOR EACH ROW
+BEGIN
+  UPDATE incidencias
+    SET codigo_ticket = CONCAT('INC', '-', LPAD(NEW.id_ticket, 5, '0'))
+    WHERE id_ticket = NEW.id_ticket;
+END//
+  
+-- BEFORE UPDATE: reestablece el código si alguien lo deja NULL o lo cambia
+CREATE TRIGGER trg_incidencias_codigo_bu
+BEFORE UPDATE ON incidencias
+FOR EACH ROW
+BEGIN
+  IF NEW.codigo_ticket IS NULL
+     OR NEW.codigo_ticket <> CONCAT('INC', '-', LPAD(NEW.id_ticket, 5, '0')) THEN
+    SET NEW.codigo_ticket = CONCAT('INC', '-', LPAD(NEW.id_ticket, 5, '0'));
+  END IF;
+END//
+DELIMITER ;
+
+
+ALTER TABLE peticiones
+  ADD COLUMN codigo_ticket VARCHAR(12) NULL;
+
+UPDATE peticiones
+SET codigo_ticket = CONCAT('RF', '-', LPAD(id_ticket, 5, '0'))
+WHERE codigo_ticket IS NULL
+  AND id_ticket IS NOT NULL;
+
+ALTER TABLE peticiones
+  ADD UNIQUE KEY uq_peticiones_codigo (codigo_ticket);
+
+DROP TRIGGER IF EXISTS trg_peticiones_codigo_ai;
+DROP TRIGGER IF EXISTS trg_peticiones_codigo_bu;
+
+DELIMITER //
+CREATE TRIGGER trg_peticiones_codigo_ai
+AFTER INSERT ON peticiones
+FOR EACH ROW
+BEGIN
+  UPDATE peticiones
+    SET codigo_ticket = CONCAT('RF', '-', LPAD(NEW.id_ticket, 5, '0'))
+    WHERE id_ticket = NEW.id_ticket;
+END//
+
+CREATE TRIGGER trg_peticiones_codigo_bu
+BEFORE UPDATE ON peticiones
+FOR EACH ROW
+BEGIN
+  IF NEW.codigo_ticket IS NULL
+     OR NEW.codigo_ticket <> CONCAT('RF', '-', LPAD(NEW.id_ticket, 5, '0')) THEN
+    SET NEW.codigo_ticket = CONCAT('RF', '-', LPAD(NEW.id_ticket, 5, '0'));
+  END IF;
+END//
+DELIMITER ;
+
+
+ALTER TABLE problemas
+  ADD COLUMN codigo_ticket VARCHAR(12) NULL;
+
+UPDATE problemas
+SET codigo_ticket = CONCAT('PM', '-', LPAD(id_ticket, 5, '0'))
+WHERE codigo_ticket IS NULL
+  AND id_ticket IS NOT NULL;
+
+ALTER TABLE problemas
+  ADD UNIQUE KEY uq_problemas_codigo (codigo_ticket);
+
+DROP TRIGGER IF EXISTS trg_problemas_codigo_ai;
+DROP TRIGGER IF EXISTS trg_problemas_codigo_bu;
+
+DELIMITER //
+CREATE TRIGGER trg_problemas_codigo_ai
+AFTER INSERT ON problemas
+FOR EACH ROW
+BEGIN
+  UPDATE problemas
+    SET codigo_ticket = CONCAT('PM', '-', LPAD(NEW.id_ticket, 5, '0'))
+    WHERE id_ticket = NEW.id_ticket;
+END//
+
+CREATE TRIGGER trg_problemas_codigo_bu
+BEFORE UPDATE ON problemas
+FOR EACH ROW
+BEGIN
+  IF NEW.codigo_ticket IS NULL
+     OR NEW.codigo_ticket <> CONCAT('PM', '-', LPAD(NEW.id_ticket, 5, '0')) THEN
+    SET NEW.codigo_ticket = CONCAT('PM', '-', LPAD(NEW.id_ticket, 5, '0'));
+  END IF;
+END//
+DELIMITER ;
+
+ALTER TABLE cambios
+  ADD COLUMN codigo_ticket VARCHAR(12) NULL;
+
+UPDATE cambios
+SET codigo_ticket = CONCAT('C', '-', LPAD(id_ticket, 5, '0'))
+WHERE codigo_ticket IS NULL
+  AND id_ticket IS NOT NULL;
+
+ALTER TABLE cambios
+  ADD UNIQUE KEY uq_cambios_codigo (codigo_ticket);
+
+DROP TRIGGER IF EXISTS trg_cambios_codigo_ai;
+DROP TRIGGER IF EXISTS trg_cambios_codigo_bu;
+
+DELIMITER //
+CREATE TRIGGER trg_cambios_codigo_ai
+AFTER INSERT ON cambios
+FOR EACH ROW
+BEGIN
+  UPDATE cambios
+    SET codigo_ticket = CONCAT('C', '-', LPAD(NEW.id_ticket, 5, '0'))
+    WHERE id_ticket = NEW.id_ticket;
+END//
+
+CREATE TRIGGER trg_cambios_codigo_bu
+BEFORE UPDATE ON cambios
+FOR EACH ROW
+BEGIN
+  IF NEW.codigo_ticket IS NULL
+     OR NEW.codigo_ticket <> CONCAT('C', '-', LPAD(NEW.id_ticket, 5, '0')) THEN
+    SET NEW.codigo_ticket = CONCAT('C', '-', LPAD(NEW.id_ticket, 5, '0'));
+  END IF;
+END//
+DELIMITER ;
+
+-- Rehabilitar el modo seguro al final
+SET SQL_SAFE_UPDATES = 1;
+
+
+insert into usuarios (username,password,nombre,email,enabled,id_grupo) values
+('cgutierrez','{noop}celita', 'Celia','cgutierrez@empresa.com', 1,2);
+
+commit;
+
+
+
+USE service_manager_db;
+
+DROP TABLE IF EXISTS actividades_inc;
+
+CREATE TABLE actividades_inc (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha_comentario DATETIME NOT NULL,
+    autor VARCHAR(50) NOT NULL,
+    comentario VARCHAR(2000) NOT NULL,
+    id_incidencia INT NOT NULL,
+
+    FOREIGN KEY (autor) REFERENCES usuarios(username),
+    FOREIGN KEY (id_incidencia) REFERENCES incidencias(id_ticket)
+);
+
+
+USE service_manager_db;
+
+INSERT INTO actividades_inc (
+    fecha_comentario,
+    autor,
+    comentario,
+    id_incidencia
+)
+VALUES
+-- Actividades para la incidencia 1
+('2024-01-15 10:00:00', 'pgranados',
+ 'Se revisa el estado del servicio Apache. Se detecta que el proceso no está iniciando correctamente.',
+ 1),
+
+('2024-01-15 10:45:00', 'ncarol',
+ 'Se valida configuración de Apache y se revisan los logs de error. Parece un problema con los módulos SSL.',
+ 1),
+
+('2024-01-15 12:30:00', 'mcruz',
+ 'Se reinician servicios dependientes y se abre caso con infraestructura para revisión del certificado SSL.',
+ 1),
+
+-- Actividades para la incidencia 2
+('2024-01-15 09:45:00', 'ncarol',
+ 'Se comprueba que el portal no responde correctamente tras autenticación. Posible bloqueo por timeout.',
+ 2),
+
+('2024-01-15 11:10:00', 'pgranados',
+ 'Se reinicia servicio del portal y se confirma recuperación. Se cierra incidencia.',
+ 2),
+
+-- Actividades para la incidencia 3
+('2024-01-15 11:00:00', 'mcruz',
+ 'Se revisa configuración de integración con Dynatrace y se detectan parámetros mal cargados.',
+ 3),
+
+('2024-01-15 12:15:00', 'pgranados',
+ 'Se actualiza configuración y reinicia el servicio. Pendiente de validación final.',
+ 3);
+
+ 
+commit;

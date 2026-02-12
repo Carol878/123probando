@@ -2,6 +2,7 @@ package api_service_manager_security.model.entities;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,7 +40,7 @@ public class ActividadIncidencia implements Serializable{
 		@JoinColumn(name="id_incidencia")
 		private Incidencia incidencia;
 		@Column(name="fecha_comentario")
-		private LocalDate fechaComentario;
+		private LocalDateTime fechaComentario;
 		@ManyToOne
 		@JoinColumn(name="autor")
 		private Usuario autor;

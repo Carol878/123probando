@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import api_service_manager_security.model.dto.UsuarioSalidaDto;
 @AllArgsConstructor
@@ -17,10 +17,9 @@ import api_service_manager_security.model.dto.UsuarioSalidaDto;
 @Setter
 @EqualsAndHashCode(of ="codigoTicket")
 
-@Entity (name = "ATicket")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@MappedSuperclass
 public abstract class ATicket {
-  @Id @GeneratedValue(strategy = GenerationType.AUTO) // InheritanceType.TABLE_PER_CLASS usa AUTO
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
   @Column(name ="id_ticket")
   private int idTicket;
 
@@ -30,9 +29,9 @@ public abstract class ATicket {
   private String descripcion;
   
   @Column(name ="fecha_apertura")
-  private LocalDate fechaApertura;
+  private LocalDateTime fechaApertura;
   @Column(name ="fecha_cierre")
-  private LocalDate fechaCierre;
+  private LocalDateTime fechaCierre;
   
   
   @ManyToOne

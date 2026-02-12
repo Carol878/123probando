@@ -17,3 +17,12 @@ insert into usuario_roles values
 
 
 commit;
+
+insert into usuarios (username,password,nombre,email,enabled,id_grupo) values
+('cgutierrez','{noop}celita', 'Celia','cgutierrez@empresa.com', 1,2);
+
+commit;
+
+UPDATE `service_manager_db`.`usuarios` SET `nombre` = 'Celia Gutierrez' WHERE (`username` = 'cgutierrez');
+UPDATE `service_manager_db`.`usuarios` SET `nombre` = 'Pablo Granados' WHERE (`username` = 'pgranados');
+commit;

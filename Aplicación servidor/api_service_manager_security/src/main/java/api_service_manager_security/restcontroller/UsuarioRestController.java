@@ -1,12 +1,11 @@
 package api_service_manager_security.restcontroller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,16 +31,6 @@ public class UsuarioRestController {
 		return "hola " +  auth;
 	}
 	
-	@GetMapping("/usuarios/all")
-    public ResponseEntity<?> obtenerTodosLosUsuarios() {
-        List<Usuario> usuarios = usuarioService.findAll();
-        // Limpiamos passwords para seguridad
-        for (Usuario u : usuarios) {
-            u.setPassword(null);
-        }
-        return ResponseEntity.ok(usuarios);
-    }
-	
 	@PostMapping("/login")
 	ResponseEntity<?> login(@RequestBody UsuarioEntradaDto usuario){
 		Usuario usuarioValido = usuarioService.findByUsernameAndPassword(usuario.getUsername(),"{noop}" + usuario.getPassword());
@@ -55,10 +44,10 @@ public class UsuarioRestController {
 		
 	}
 	
-	@PostMapping("/usuarios/grupo")
-	ResponseEntity<?> devolverTodos(@RequestBody Grupo grupo){
+	@GetMapping("/usuarios/grupo/{id}")
+	ResponseEntity<?> devolverTodos(@PathVariable int id){
 		
-		return ResponseEntity.ok(usuarioService.findAllDeGrupo(grupo));
+		return ResponseEntity.ok(usuarioService.findAllDeGrupo(id));
 		
 	}
 	

@@ -126,6 +126,16 @@ export class TicketsService {
     });
 
 
+
+
+  }
+
+  crearTicketYSalir(nuevoTicket: TicketSalidaDto) {
+    this.httpService.crearTicket(nuevoTicket).subscribe((ticket) => {
+      next: this.ticketActualizado.set(ticket);
+      this.cargarTickets();
+
+    });
   }
 
   // Configuramos un get para obtener el valor privado

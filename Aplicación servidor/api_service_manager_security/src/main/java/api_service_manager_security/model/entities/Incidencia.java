@@ -1,6 +1,6 @@
 package api_service_manager_security.model.entities;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import api_service_manager_security.model.dto.IncidenciaEntradaDto;
 import api_service_manager_security.model.dto.UsuarioSalidaDto;

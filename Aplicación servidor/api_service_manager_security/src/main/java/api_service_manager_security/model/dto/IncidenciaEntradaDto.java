@@ -1,7 +1,6 @@
 package api_service_manager_security.model.dto;
 
-import java.time.LocalDate;
-
+import java.time.LocalDateTime;
 
 import api_service_manager_security.model.entities.Usuario;
 import lombok.AllArgsConstructor;
@@ -18,9 +17,9 @@ public class IncidenciaEntradaDto {
 	private String categoriaTicket;
 	private String titulo;
 	private String descripcion;
-	private LocalDate fechaApertura;
-	private LocalDate fechaCierre;   
-	private LocalDate fechaLimite;    
+	private LocalDateTime fechaApertura;
+	private LocalDateTime fechaCierre;   
+	private LocalDateTime fechaLimite;    
 	private String abiertoPorUsername;    
 	private String asignatarioUsername;   
 	private String estado;

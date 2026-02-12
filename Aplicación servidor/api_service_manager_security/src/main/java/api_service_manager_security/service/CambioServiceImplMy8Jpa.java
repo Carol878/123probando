@@ -12,35 +12,38 @@ import api_service_manager_security.model.repository.CambioRepository;
 public class CambioServiceImplMy8Jpa implements CambioService{
 
 	@Autowired
-    private CambioRepository cambioRepository;
+	private CambioRepository cambioRepository;
 
-    @Override
-    public List<Cambio> findAll() {
-        return cambioRepository.findAll();
-    }
+	@Override
+	public List<Cambio> findAll() {
+		return cambioRepository.findAll();
+	}
 
-    @Override
-    public Cambio findById(Integer id) {
-        // Usamos orElse(null) para evitar Optional si no lo encuentra
-        return cambioRepository.findById(id).orElse(null);
-    }
-    
+	@Override
+	public Cambio findById(Integer id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
+	@Override
+	public Cambio insertOne(Cambio obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public Cambio insertOne(Cambio obj) {
-        return cambioRepository.save(obj);
-    }
+	@Override
+	public Cambio updateOne(Cambio obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public Cambio updateOne(Cambio obj) {
-        return cambioRepository.save(obj);
-    }
-
-    @Override
-    public int deleteById(Integer id) {
-        cambioRepository.deleteById(id);
-        return 1; //Devuelve 1, exito
-    }
-    
+	@Override
+	public int deleteById(Integer id) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	
+	
+	
 }

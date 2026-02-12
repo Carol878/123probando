@@ -27,14 +27,14 @@ public class Cambio extends ATicket{
 	private String planImplementacion;
 	@Column(name ="plan_marcha_atras")
 	private String planMarchaAtras;
-	//@Column(name ="inicio_implementacion_programado")
-	//private LocalDateTime inicioImplementacionProgramado;
-	//@Column(name ="fin_implementacion_programado")
-	//private LocalDateTime finImplementacionProgramado;
-	//@Column(name ="inicio_implementacion_real")
-	//private LocalDateTime inicioImplementacionReal;
-	//@Column(name ="fin_implementacion_real")
-	//private LocalDateTime finImplementacionReal;
+	@Column(name ="inicio_implementacion_programado")
+	private LocalDateTime inicioImplementacionProgramado;
+	@Column(name ="fin_implementacion_programado")
+	private LocalDateTime finImplementacionProgramado;
+	@Column(name ="inicio_implementacion_real")
+	private LocalDateTime inicioImplementacionReal;
+	@Column(name ="fin_implementacion_real")
+	private LocalDateTime finImplementacionReal;
 	@Column(name ="efecto_no_implementar")
 	private String efectoNoImplementar;
 

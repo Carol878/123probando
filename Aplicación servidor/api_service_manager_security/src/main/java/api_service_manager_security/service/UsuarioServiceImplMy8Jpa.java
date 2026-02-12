@@ -44,11 +44,11 @@ public class UsuarioServiceImplMy8Jpa implements UsuarioService, UserDetailsServ
 	
 
 	@Override
-	public List<UsuarioSalidaDto> findAllDeGrupo(Grupo grupo) {
+	public List<UsuarioSalidaDto> findAllDeGrupo(int id) {
 		List listaUsuarioDto = new ArrayList<>();
 		for (Usuario usuario:usuarioRepository.findAll()) {
 			UsuarioSalidaDto usuarioDto = UsuarioSalidaDto.crearUsuarioSalidaDtoDesdeUsuario(usuario);
-			if (usuarioDto.getGrupo().getIdGrupo()==(grupo.getIdGrupo())){
+			if (usuarioDto.getGrupo().getIdGrupo()==id){
 				listaUsuarioDto.add(usuarioDto);
 			}
 			
@@ -62,9 +62,5 @@ public class UsuarioServiceImplMy8Jpa implements UsuarioService, UserDetailsServ
 		return usuarioRepository.findById(username).orElse(null);
 	}
 
-
-	@Override
-	public List<Usuario> findAll() {
-		return usuarioRepository.findAll();
-	}
+	
 }

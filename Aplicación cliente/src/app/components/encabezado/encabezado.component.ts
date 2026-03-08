@@ -45,5 +45,7 @@ export class EncabezadoComponent {
 
   alCerrarSesion() {
 this.cerrarSesion.emit();
+
+
   }
 }

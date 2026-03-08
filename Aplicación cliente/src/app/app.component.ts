@@ -62,15 +62,15 @@ export class AppComponent {
   });
 
   private iniciarMonitorizacionInactividad() {
-    this.inactividadService.setTiempoSinActividad(600);
-    this.tiempoRestante.set(600);
+    this.inactividadService.setTiempoSinActividad(30);
+    this.tiempoRestante.set(30);
 
     //nos subscrimibos al tiempo restante que emitimos en el servicio y actualizamos nuestro valor tiempo restante
     this.subscripcion.add(
       this.inactividadService.getTiempoRestante().subscribe((tiempo) => {
         this.tiempoRestante.set(tiempo);
         //ahora usamos un valor dinamico en funcion del tiempo para hacer que mostarAdvertencia aparezca o no
-        this.mostrarAdvertencia.set(tiempo < 180 && tiempo > 0);
+        this.mostrarAdvertencia.set(tiempo < 25 && tiempo > 0);
         console.log('tiempo restante hasta el cierre de sesión por inactividad: ', tiempo);
       }),
     );
@@ -100,7 +100,7 @@ export class AppComponent {
 
   extenderSesion() {
     //reiniciamos el tiempo
-    this.inactividadService.setTiempoSinActividad(600);
+    this.inactividadService.setTiempoSinActividad(30);
     //borramos el mensaje
     this.mostrarAdvertencia.set(false);
     console.log('Sesión extendida');
@@ -110,8 +110,8 @@ export class AppComponent {
     // Usar el AppService para cerrar sesión
     this.appService.setLogeado(false);
     this.appService.setUsuarioValido(undefined!);
-    this.appService.setUsername('');
-    this.appService.setPassword('');
+    this.appService.setIntentoFallido(false);
+
 
     this.detenerMonitorizacionInactividad();
   }
@@ -120,10 +120,10 @@ export class AppComponent {
     // Usar el AppService para cerrar sesión
     this.appService.setLogeado(false);
     this.appService.setUsuarioValido(undefined!);
-    this.appService.setUsername('');
-    this.appService.setPassword('');
+
 
     this.detenerMonitorizacionInactividad();
+    this.appService.setIntentoFallido(false);
   }
 
 

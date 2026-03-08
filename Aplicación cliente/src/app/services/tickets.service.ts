@@ -8,6 +8,7 @@ import { TicketSalidaDto } from '../../model/ticket-salida-dto.model';
 import { ActividadIncidencia } from '../../model/actividad-incidencia.model';
 import { TimestampProvider, OperatorFunction, Timestamp } from 'rxjs';
 import { ActividadIncidenciaDto } from '../../model/actividad-incidencia-dto.model';
+import { Busqueda } from '../../model/busqueda.model';
 
 // Decoramos la clase como inyectable para poder crear una sola instancia de la misma en todos los componenete y que comparatn la información.
 // El valor root significar que lo añada al apartado root del arbol de inyecciones de Angular.
@@ -27,6 +28,7 @@ export class TicketsService {
   private ticketsAll = signal<Ticket[]>([]);
   private ticketsFiltrados = signal<Ticket[]>([]);
   private ticketsAbiertos = signal<Ticket[]>([]);
+  private ticketsBuscados = signal<Ticket[]>([]);
 
   //Creamos esta variable para corta la subcripción cuando finalice. En este caso va a estar escuchando siempre pero es una buena práctica.
   private destroyRef = inject(DestroyRef);
@@ -43,11 +45,10 @@ export class TicketsService {
 
   cargarTickets() {
     const subscripcion = this.httpService.cargarProductos().subscribe((datos) => {
-      // Guardamos todos
+      // 1. Guardamos la fuente de verdad actualizada
       this.ticketsAll.set(datos);
-      console.log(this.ticketsAll());
+      console.log('Datos recargados', this.ticketsAll());
 
-      // Aplicamos el filtro inicial
       this.ticketsFiltrados.set(
         datos.filter(
           (ticket) =>
@@ -56,7 +57,7 @@ export class TicketsService {
         ),
       );
 
-      // Aplicamos el filtro inicial
+      // 3. Actualizamos siempre la lista de tickets "Abiertos por mí" (independiente de la búsqueda)
       this.ticketsAbiertos.set(
         datos.filter(
           (ticket) =>
@@ -116,25 +117,32 @@ export class TicketsService {
     });
   }
 
+  //Get para poder calcular las listas de usuarios en el buscador
+  getTodosLosTickets() {
+    return this.ticketsAll.asReadonly();
+  }
+
   crearTicket(nuevoTicket: TicketSalidaDto) {
     this.httpService.crearTicket(nuevoTicket).subscribe((ticket) => {
       next: this.ticketActualizado.set(ticket);
       this.cargarTickets();
       this.visualizarTicket.set(ticket);
       this.proyeccion.set('ticket');
-
     });
+  }
 
-
-
-
+  realizarBusqueda(parametrosBusqueda: Busqueda) {
+    this.httpService.busquedaAvanzada(parametrosBusqueda).subscribe((tickets) => {
+      this.ticketsBuscados.set(tickets);
+      this.setTipoDeTicketVisible('busqueda');
+      this.proyeccion.set('tickets');
+    });
   }
 
   crearTicketYSalir(nuevoTicket: TicketSalidaDto) {
     this.httpService.crearTicket(nuevoTicket).subscribe((ticket) => {
       next: this.ticketActualizado.set(ticket);
       this.cargarTickets();
-
     });
   }
 
@@ -145,6 +153,10 @@ export class TicketsService {
 
   getTicketsAbiertos() {
     return this.ticketsAbiertos();
+  }
+
+  getTicketsBuscados() {
+    return this.ticketsBuscados();
   }
 
   // Configuramos un get para obtener el valor privado OJO, mandamos una writable signal, por lo que hay que poner asReadonly()
@@ -215,61 +227,54 @@ export class TicketsService {
 
   // Ordenar ascendente implementando el metodo propio de sacarValorAnidado y usando localcompare que devuelve  -1,0 o 1
   ordenarFilasAscendente(rutaDeVariable: string) {
-    const ordenados = [...this.ticketsFiltrados()].sort((a, b) => {
-      const primerValor = this.sacarValorAnidado(a, rutaDeVariable);
-      const segundoValor = this.sacarValorAnidado(b, rutaDeVariable);
-      return String(primerValor).localeCompare(String(segundoValor));
-    });
-    this.ticketsFiltrados.set(ordenados);
+    if (this.tipoDeTicketVisible() == 'abiertas') {
+      const ordenados = [...this.ticketsAbiertos()].sort((a, b) => {
+        const primerValor = this.sacarValorAnidado(a, rutaDeVariable);
+        const segundoValor = this.sacarValorAnidado(b, rutaDeVariable);
+        return String(primerValor).localeCompare(String(segundoValor));
+      });
+      this.ticketsAbiertos.set(ordenados);
+    } if (this.tipoDeTicketVisible() == 'busqueda') {
+      const ordenados = [...this.ticketsBuscados()].sort((a, b) => {
+        const primerValor = this.sacarValorAnidado(a, rutaDeVariable);
+        const segundoValor = this.sacarValorAnidado(b, rutaDeVariable);
+        return String(primerValor).localeCompare(String(segundoValor));
+      });
+      this.ticketsBuscados.set(ordenados);
+    }else {
+      const ordenados = [...this.ticketsFiltrados()].sort((a, b) => {
+        const primerValor = this.sacarValorAnidado(a, rutaDeVariable);
+        const segundoValor = this.sacarValorAnidado(b, rutaDeVariable);
+        return String(primerValor).localeCompare(String(segundoValor));
+      });
+      this.ticketsFiltrados.set(ordenados);
+    }
   }
 
   // Ordenar descendente
   ordenarFilasDescendente(claveDeOrden: string) {
-    const ordenados = [...this.ticketsFiltrados()].sort((a, b) => {
-      const primerValor = this.sacarValorAnidado(a, claveDeOrden);
-      const segundoValor = this.sacarValorAnidado(b, claveDeOrden);
-      return String(segundoValor).localeCompare(String(primerValor));
-    });
-    this.ticketsFiltrados.set(ordenados);
-  }
-
-  // Función de búsqueda de tickets: ---
-  filtrarTickets(filtros: any) {
-    // 1. Obtenemos el valor actual de todos los tickets usando los paréntesis ()
-    const todos = this.ticketsAll();
-
-    // 2. Aplicamos el filtro sobre el array original
-    const resultado = todos.filter((ticket) => {
-      // Filtro de Título (insensible a mayúsculas)
-      const cumpleTitulo =
-        !filtros.titulo || ticket.titulo.toLowerCase().includes(filtros.titulo.toLowerCase());
-
-      // ME DA ERROR PORQUE EN LA INTERFAZ DE TICKET NO HAY CATEGORIA
-      // Filtro de Categoría (comparación directa)
-      //const cumpleCategoria = !filtros.categoria ||
-      //  ticket.categoria === filtros.categoria;
-
-      // Filtro de Prioridad
-      const cumplePrioridad = !filtros.prioridad || ticket.prioridad === filtros.prioridad;
-
-      // Filtro de Área (insensible a mayúsculas)
-      const cumpleArea =
-        !filtros.areaAfectada ||
-        ticket.areaAfectada.toLowerCase().includes(filtros.areaAfectada.toLowerCase());
-
-      // Si cumple todos los filtros activos, devolvemos true
-      return cumpleTitulo && /*cumpleCategoria &&*/ cumplePrioridad && cumpleArea;
-    });
-
-    // 3. Actualizamos la señal 'ticketsFiltrados' con el nuevo valor
-    // Esto hará que la tabla en el HTML se actualice mágicamente al instante
-    this.ticketsFiltrados.set(resultado);
-  }
-
-  buscarUnGrupo(idGrupo: number) {
-    return this.httpService.buscarUnGrupo(idGrupo);
-  }
-  buscarUnUsuario(username: string) {
-    return this.httpService.buscarUnUsuario(username);
+    if (this.tipoDeTicketVisible() == 'abiertas') {
+      const ordenados = [...this.ticketsAbiertos()].sort((a, b) => {
+        const primerValor = this.sacarValorAnidado(a, claveDeOrden);
+        const segundoValor = this.sacarValorAnidado(b, claveDeOrden);
+        return String(segundoValor).localeCompare(String(primerValor));
+      });
+      this.ticketsAbiertos.set(ordenados);
+    }
+    if (this.tipoDeTicketVisible() == 'busqueda') {
+      const ordenados = [...this.ticketsBuscados()].sort((a, b) => {
+        const primerValor = this.sacarValorAnidado(a, claveDeOrden);
+        const segundoValor = this.sacarValorAnidado(b, claveDeOrden);
+        return String(segundoValor).localeCompare(String(primerValor));
+      });
+      this.ticketsBuscados.set(ordenados);
+    } else {
+      const ordenados = [...this.ticketsFiltrados()].sort((a, b) => {
+        const primerValor = this.sacarValorAnidado(a, claveDeOrden);
+        const segundoValor = this.sacarValorAnidado(b, claveDeOrden);
+        return String(segundoValor).localeCompare(String(primerValor));
+      });
+      this.ticketsFiltrados.set(ordenados);
+    }
   }
 }

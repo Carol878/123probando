@@ -4,15 +4,16 @@ import { AppComponent } from './app/app.component';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import { LOCALE_ID } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { jwtInterceptor } from './app/Interceptor/jwt.interceptor';
 
 //Registramos nuestro región España como "es"
 registerLocaleData(localeEs, 'es');
 
 //Configuramos en el arranque que use el proveedor LOCALE_ID como la variable que hemos creado antes "es"
 bootstrapApplication(AppComponent, {
-    providers:[provideHttpClient(),{
+    providers:[provideHttpClient( withInterceptors([jwtInterceptor])),{
         provide: LOCALE_ID,
         useValue: "es"
         },

@@ -19,6 +19,7 @@ import api_service_manager_security.model.dto.ActividadIncidenciaEntradaDto;
 import api_service_manager_security.model.dto.IncidenciaEntradaDto;
 import api_service_manager_security.model.entities.ATicket;
 import api_service_manager_security.model.entities.ActividadIncidencia;
+import api_service_manager_security.model.entities.Busqueda;
 import api_service_manager_security.model.entities.Cambio;
 import api_service_manager_security.model.entities.Incidencia;
 import api_service_manager_security.model.entities.Peticion;
@@ -126,6 +127,13 @@ public class TicketRestController {
 			return ResponseEntity.status(404).body(e.getMessage());
 		}
 
+	}
+	
+	@PostMapping("/incidencias/busqueda-avanzada")
+	ResponseEntity<?> busquedaAvanzada(@RequestBody Busqueda busqueda) {
+		List<Incidencia> lista= incidenciaService.busquedaAvanzado(busqueda);
+		
+		return ResponseEntity.ok(lista);
 	}
 
 

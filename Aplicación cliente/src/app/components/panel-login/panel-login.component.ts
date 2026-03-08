@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AppService } from '../../services/app.service';
 import { HttpService } from '../../services/http.service';
@@ -10,24 +10,21 @@ import { HttpService } from '../../services/http.service';
   styleUrl: './panel-login.component.css',
 })
 export class PanelLoginComponent {
-  //Inyectamos nuestro servicio app para gestionar el login
   private appService = inject(AppService);
+  private httpService = inject(HttpService);
 
   intentoFallido = this.appService.getIntentoFallido();
 
-  //Inyectamos el servicio HTTP
-  private httpService = inject(HttpService);
-
-  //Creamos el formulario y lo enlazamos con los campos
   loginForm = new FormGroup({
     username: new FormControl(''),
     password: new FormControl(''),
   });
 
+  //Iniciamos la sesión directamente contra el httpService pasandole los valores del formulario.
   iniciarSesion() {
-    this.appService.setPassword(this.loginForm.value.password!);
-    this.appService.setUsername(this.loginForm.value.username!);
-    this.loginForm.reset()
-    this.httpService.realizarInicioSesion()
+    const username = this.loginForm.value.username!;
+    const password = this.loginForm.value.password!;
+    this.loginForm.reset();
+    this.httpService.realizarInicioSesion(username, password);
   }
 }

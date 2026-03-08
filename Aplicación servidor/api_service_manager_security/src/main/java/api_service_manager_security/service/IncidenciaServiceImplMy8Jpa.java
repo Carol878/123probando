@@ -3,13 +3,16 @@ package api_service_manager_security.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import api_service_manager_security.model.dto.IncidenciaEntradaDto;
+import api_service_manager_security.model.entities.Busqueda;
 import api_service_manager_security.model.entities.Incidencia;
 import api_service_manager_security.model.repository.GrupoRepository;
 import api_service_manager_security.model.repository.IncidenciaRepository;
 import api_service_manager_security.model.repository.UsuarioRepository;
+import api_service_manager_security.service.specification.IncidenciaSpecification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -25,6 +28,8 @@ public class IncidenciaServiceImplMy8Jpa implements IncidenciaService{
     private GrupoRepository grupoRepository;
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    private IncidenciaSpecification incidenciaSpecification;
 
 
 	@Override
@@ -129,18 +134,27 @@ public Incidencia insertFromDto(IncidenciaEntradaDto dto) {
 
     if (dto.getGrupoId() != null) {
     	nueva.setGrupo(
-            grupoRepository.findById(dto.getGrupoId()).orElse(null));
+    			grupoRepository.findById(dto.getGrupoId()).orElse(null));
     }
     // Persistimos
     Incidencia ticket = incidenciaRepository.save(nueva);
     //Actualizamos lo que acabamos de recibir para que recoja el valor codigo_ticket que se genera con el before insert
     entityManager.refresh(ticket);
-    
+
     return ticket;
 }
 
+	@Override
+	public List<Incidencia> busquedaAvanzado(Busqueda busqueda) {
+		
+		 Specification<Incidencia> spec = incidenciaSpecification.filtrarPorBusqueda(busqueda);
+	        return incidenciaRepository.findAll(spec);
+		
+		
+	}
 	
-	
-	
-	
+
+
+
+
 }

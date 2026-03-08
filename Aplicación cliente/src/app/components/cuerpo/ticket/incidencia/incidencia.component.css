@@ -112,7 +112,7 @@ button img.especificas {
 
 /* Campos deshabilitados */
 form input[disabled],
-form textarea[disabled] {
+form textarea[disabled], form select[disabled]{
   background: #dedede;
   color: #000000;
   border: 1px solid #747474;
@@ -218,4 +218,8 @@ select.obligatorio {
   color: #ff2802;
   font-style: italic;
 
+}
+
+select{
+  cursor: pointer;
 }

@@ -23,8 +23,6 @@ import { ActividadIncidenciaDto } from '../../../../../model/actividad-incidenci
   styleUrl: './incidencia.component.css',
 })
 export class IncidenciaComponent implements OnInit {
-
-
   //Cargamos las areas posibles
   areaService = inject(AreaService);
   areas = this.areaService.getAreas();
@@ -55,11 +53,11 @@ export class IncidenciaComponent implements OnInit {
   usuarioLogeado = this.appService.getUsuarioValido();
 
   coincideUsuarioConAsignado = signal(
-    this.ticket?.asignatario?.username === this.usuarioLogeado()?.username
+    this.ticket?.asignatario?.username === this.usuarioLogeado()?.username,
   );
 
-  coincideGrupoConGrupoAsignado= signal(
-    this.ticket?.grupo.idGrupo === this.usuarioLogeado()?.grupo.idGrupo
+  coincideGrupoConGrupoAsignado = signal(
+    this.ticket?.grupo.idGrupo === this.usuarioLogeado()?.grupo.idGrupo,
   );
 
   //Variables para gestionar si mostramos el menu de resovler
@@ -74,7 +72,6 @@ export class IncidenciaComponent implements OnInit {
   //Creamos un signal para luego leerlo con el effect
   private ticketActualizadoSig = this.ticketsService.getTicketActualizado();
 
-
   constructor() {
     // Creamos un effect que se activara cuando se actualice el ticket
     effect(() => {
@@ -88,13 +85,10 @@ export class IncidenciaComponent implements OnInit {
           this.ticket?.asignatario?.username === this.usuarioLogeado()?.username,
         );
         this.coincideGrupoConGrupoAsignado.set(
-          this.ticket?.grupo.idGrupo === this.usuarioLogeado()?.grupo.idGrupo
-        )
+          this.ticket?.grupo.idGrupo === this.usuarioLogeado()?.grupo.idGrupo,
+        );
       }
     });
-
-
-
   }
 
   //variable para limpiar asignatario cuando se escala
@@ -117,39 +111,31 @@ export class IncidenciaComponent implements OnInit {
 
   //Funcion para guardar
   alGuardar() {
-    const nuevaIncidencia= this.crearIncidenciaDeFormulario();
+    const nuevaIncidencia = this.crearIncidenciaDeFormulario();
 
-    if (!this.resolver()){
-
+    if (!this.resolver()) {
       this.guardarTicket(nuevaIncidencia);
-
-    }else{
+    } else {
       const tipoCierreValor = this.miFormulario.get('tipoCierre')?.value;
       const comentarioCierreValor = this.miFormulario.get('comentarioCierre')?.value;
 
       if (!tipoCierreValor || !comentarioCierreValor?.trim()) {
-
         this.resolviendoEsObligatorioCss.set(true);
         return;
       }
 
       // Si todo está bien, resetear el CSS y guardar
       this.resolviendoEsObligatorioCss.set(false);
+      nuevaIncidencia.estado = 'Cerrado';
       this.guardarTicket(nuevaIncidencia);
     }
-
   }
 
-
-
-
-
-  guardarTicket(nuevaIncidencia: TicketSalidaDto){
-
-    if(this.grupoAnterior() != nuevaIncidencia.grupoId){
+  guardarTicket(nuevaIncidencia: TicketSalidaDto) {
+    if (this.grupoAnterior() != nuevaIncidencia.grupoId) {
       this.grupoAnterior.set(nuevaIncidencia.grupoId as number);
       this.miFormulario.controls['asignatario'].reset();
-      nuevaIncidencia.asignatarioUsername = "";
+      nuevaIncidencia.asignatarioUsername = '';
     }
 
     this.ticketsService.actualizarTicket(nuevaIncidencia);
@@ -166,38 +152,34 @@ export class IncidenciaComponent implements OnInit {
 
       this.formularioDeComentarios.reset('');
       this.mostrarTextAreaParaComentario.set(false);
-  }}
-
+    }
+  }
 
   alGuardarYSalir() {
-    const nuevaIncidencia= this.crearIncidenciaDeFormulario();
+    const nuevaIncidencia = this.crearIncidenciaDeFormulario();
 
-    if (!this.resolver()){
-
+    if (!this.resolver()) {
       this.guardarTicket(nuevaIncidencia);
-
-    }else{
+    } else {
       const tipoCierreValor = this.miFormulario.get('tipoCierre')?.value;
       const comentarioCierreValor = this.miFormulario.get('comentarioCierre')?.value;
 
       if (!tipoCierreValor || !comentarioCierreValor?.trim()) {
-
         this.resolviendoEsObligatorioCss.set(true);
         return;
       }
 
       // Si todo está bien, resetear el CSS y guardar
       this.resolviendoEsObligatorioCss.set(false);
+      nuevaIncidencia.estado = 'Cerrado';
       this.guardarTicket(nuevaIncidencia);
     }
     this.ticketsService.mostrarTickets();
     this.ticketsService.setActividadesTicket();
-
   }
 
   alResolver() {
     this.resolver.set(true);
-    this.ticketsService.actualizarTicket(this.crearIncidenciaDeFormulario());
   }
 
   alAnadirComentario() {
@@ -225,15 +207,33 @@ export class IncidenciaComponent implements OnInit {
 
   //Y una vez creado desactivamos los valores que no nos interesan
   ngOnInit(): void {
-    this.miFormulario.controls['titulo'].disable();
-    this.miFormulario.controls['codigoTicket'].disable();
-    this.miFormulario.controls['abiertoPor'].disable();
-    this.miFormulario.controls['categoriaTicket'].disable();
-    this.miFormulario.controls['estado'].disable();
-    this.miFormulario.controls['prioridad'].disable();
-    this.miFormulario.controls['fechaLimite'].disable();
-    this.miFormulario.controls['fechaCierre'].disable();
-    this.miFormulario.controls['fechaApertura'].disable();
+    if (this.ticket.estado == 'Cerrado') {
+      this.miFormulario.controls['titulo'].disable();
+      this.miFormulario.controls['codigoTicket'].disable();
+      this.miFormulario.controls['abiertoPor'].disable();
+      this.miFormulario.controls['categoriaTicket'].disable();
+      this.miFormulario.controls['estado'].disable();
+      this.miFormulario.controls['prioridad'].disable();
+      this.miFormulario.controls['fechaLimite'].disable();
+      this.miFormulario.controls['fechaCierre'].disable();
+      this.miFormulario.controls['fechaApertura'].disable();
+      this.miFormulario.controls['areaAfectada'].disable();
+      this.miFormulario.controls['descripcion'].disable();
+      this.miFormulario.controls['asignatario'].disable();
+      this.miFormulario.controls['grupo'].disable();
+      this.miFormulario.controls['tipoCierre'].disable();
+      this.miFormulario.controls['comentarioCierre'].disable();
+    } else {
+      this.miFormulario.controls['titulo'].disable();
+      this.miFormulario.controls['codigoTicket'].disable();
+      this.miFormulario.controls['abiertoPor'].disable();
+      this.miFormulario.controls['categoriaTicket'].disable();
+      this.miFormulario.controls['estado'].disable();
+      this.miFormulario.controls['prioridad'].disable();
+      this.miFormulario.controls['fechaLimite'].disable();
+      this.miFormulario.controls['fechaCierre'].disable();
+      this.miFormulario.controls['fechaApertura'].disable();
+    }
   }
 
   crearIncidenciaDeFormulario() {

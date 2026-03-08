@@ -5,26 +5,38 @@
       ><img class="especificas" src="cancelar.png" alt="Imagen de lupa"
     /></span>
   </button>
-  @if (coincideGrupoConGrupoAsignado() || ticket.abiertoPor.username === usuarioLogeado()?.username) {
-  <button appButton (click)="alGuardarYSalir()">
-    Guardar y salir
-    <span ngProjectAs="icono"
-      ><img class="especificas" src="guardar-y-salir.png" alt="Imagen de disco"
-    /></span>
-  </button>
+  @if (
+    (coincideGrupoConGrupoAsignado() && !resolver() && ticket.estado!= 'Cerrado') ||
+    (ticket.abiertoPor.username === usuarioLogeado()?.username && !resolver() && ticket.estado!= 'Cerrado')
+  ) {
+    <button appButton (click)="alGuardarYSalir()">
+      Guardar y salir
+      <span ngProjectAs="icono"
+        ><img class="especificas" src="guardar-y-salir.png" alt="Imagen de disco"
+      /></span>
+    </button>
 
-  <button appButton (click)="alGuardar()">
-    Guardar
-    <span ngProjectAs="icono"
-      ><img class="especificas" src="guardar.png" alt="Imagen de disco"
-    /></span>
-  </button>
-}
-  @if (coincideUsuarioConAsignado() && coincideGrupoConGrupoAsignado()) {
+    <button appButton (click)="alGuardar()">
+      Guardar
+      <span ngProjectAs="icono"
+        ><img class="especificas" src="guardar.png" alt="Imagen de disco"
+      /></span>
+    </button>
+  }
+  @if (coincideUsuarioConAsignado() && coincideGrupoConGrupoAsignado() && !resolver() && ticket.estado!= 'Cerrado') {
     <button appButton (click)="alResolver()">
       Resolver
       <span ngProjectAs="icono"
         ><img class="especificas" src="resolver.png" alt="Imagen de resolver"
+      /></span>
+    </button>
+  }
+
+  @if (resolver()) {
+    <button appButton (click)="alGuardarYSalir()">
+      Guardar y cerrar
+      <span ngProjectAs="icono"
+        ><img class="especificas" src="cerrar.png" alt="Imagen de disco"
       /></span>
     </button>
   }
@@ -163,7 +175,14 @@
       </div>
     </div>
     <div class="separacion-Y"></div>
-    @if (coincideUsuarioConAsignado() && coincideGrupoConGrupoAsignado() || ticket.abiertoPor.username === usuarioLogeado()?.username) {
+    <h3>Actividades:</h3>
+
+    <hr />
+    <br />
+    @if (
+      (coincideUsuarioConAsignado() && coincideGrupoConGrupoAsignado() && ticket.estado !== 'Cerrado')  ||
+      (ticket.abiertoPor.username === usuarioLogeado()?.username && ticket.estado !== 'Cerrado')
+    ) {
       <div class="contenedor-botones">
         <button appButton (click)="alAnadirComentario()">
           Añadir Comentario
@@ -224,10 +243,10 @@
     </div>
     @if (resolviendoEsObligatorioCss()) {
       <span class="mensaje-obligatorio"
-      >* Es obligatorio cumplimentar este campo para resolver el ticket</span
-    > <br><br>
+        >* Es obligatorio cumplimentar este campo para resolver el ticket</span
+      >
+      <br /><br />
     }
-
 
     <div class="form-row">
       <label for="comentarioCierre">Comentario cierre:</label>
@@ -242,10 +261,37 @@
     </div>
     @if (resolviendoEsObligatorioCss()) {
       <span class="mensaje-obligatorio"
-      >* Es obligatorio cumplimentar este campo para resolver el ticket</span
-    >
+        >* Es obligatorio cumplimentar este campo para resolver el ticket</span
+      >
     }
+  }
 
+  <div class="separacion-Y"></div>
+  <div class="separacion-Y"></div>
+  @if (ticket.estado == 'Cerrado') {
+     <h3>Información de cierre:</h3>
+
+    <hr />
+    <br />
+    <div class="form-row">
+      <label for="tipoCierre">Tipo Cierre:</label>
+      <select type="text" id="tipoCierre" name="tipoCierre" formControlName="tipoCierre">
+        @for (tipo of tiposCierre(); track $index) {
+          <option [value]="tipo.nombreArea">{{ tipo.nombreArea }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="comentarioCierre">Comentario cierre:</label>
+      <textarea
+        id="comentarioCierre"
+        name="comentarioCierre"
+        rows="3"
+        cols="50"
+        formControlName="comentarioCierre"
+      ></textarea>
+    </div>
   }
 </form>
 

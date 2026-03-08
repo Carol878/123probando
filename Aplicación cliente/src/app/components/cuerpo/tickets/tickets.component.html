@@ -47,8 +47,7 @@
         </button>
 
 
-  @if (tipoDeTicket()!="todos" && tipoDeTicket()!="abiertas"){
-
+  @if (tipoDeTicket()!="todos" && tipoDeTicket()!="abiertas" && tipoDeTicket()!="busqueda"){
         <!-- Boton con directiva button para no repetir la estructa más de lo necesario -->
         <button appButton (click)="mostrarFormularioBusqueda()">
           Buscar {{tipoDeTicket()}}

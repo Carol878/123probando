@@ -1,7 +1,155 @@
-  @switch (formularioAMostrar()) { @case ("cambio") {
- <app-busqueda-cambios />
-  } @case ("petición") {
-  } @case ("incidencia") {
-  } @case ("problema") 
-  {}}
+<div class="contenedor-botones">
+  <button appButton (click)="alCancelar()">
+    Cancelar
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="cancelar.png" alt="Imagen de lupa"
+    /></span>
+  </button>
 
+  <button appButton (click)="alBuscar()">
+    Buscar
+    <span ngProjectAs="icono"
+      ><img class="especificas" src="lupa.png" alt="Imagen de disco"
+    /></span>
+  </button>
+</div>
+
+<form [formGroup]="miFormulario">
+  <h3>Buscar Incidencia</h3>
+
+  <hr />
+  <br />
+
+  <div class="form-container">
+    <div class="form-row">
+      <label for="id">Identificador:</label>
+      <input type="text" class="input-corto" id="titulo" name="id" formControlName="id" />
+    </div>
+    <div class="separacion-Y"></div>
+
+    <div class="form-row">
+      <label for="estado">Estado:</label>
+
+      <select class="input-corto" type="text" id="estado" name="estado" formControlName="estado">
+        @for (estado of estados(); track $index) {
+          <option [value]="estado.nombreEstado">{{ estado.nombreEstado }}</option>
+        }
+      </select>
+      <div class="separacion-X"></div>
+      <label for="abiertoPor">Abierto por:</label>
+      <select
+        class="input-corto"
+        type="text"
+        id="abiertoPor"
+        name="abiertoPor"
+        formControlName="abiertoPor"
+      >
+        @for (usuario of usuarios(); track $index) {
+          <option [value]="usuario.username">{{ usuario.username }}</option>
+        }
+      </select>
+      <div class="separacion-X"></div>
+      <label for="prioridad">Prioridad:</label>
+
+      <select
+        class="input-corto"
+        type="text"
+        id="prioridad"
+        name="prioridad"
+        formControlName="prioridad"
+      >
+        @for (prioridad of prioridades(); track $index) {
+          <option [value]="prioridad">{{ prioridad }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="fechaApertura">Fecha Apertura:</label>
+      <input
+        class="input-corto fecha-personalizada"
+        type="date"
+        id="fechaApertura"
+        name="fechaApertura"
+        formControlName="fechaApertura"
+      />
+      <div class="separacion-X"></div>
+
+      <label for="fechaCierre">Fecha Cierre:</label>
+      <input
+        class="input-corto fecha-personalizada"
+        type="date"
+        id="fechaCierre"
+        name="fechaCierre"
+        formControlName="fechaCierre"
+      />
+      <div class="separacion-X"></div>
+      <label for="fechaLimite">Fecha Límite:</label>
+      <input
+        class="input-corto fecha-personalizada"
+        type="date"
+        id="fechaLimite"
+        name="fechaLimite"
+        formControlName="fechaLimite"
+      />
+    </div>
+
+    <div class="separacion-Y"></div>
+
+    <div class="form-row">
+      <label for="areaAfectada">Área Afectada:</label>
+      <select
+        class="input-corto"
+        id="areaAfectada"
+        name="areaAfectada"
+        required
+        formControlName="areaAfectada"
+      >
+        @for (area of areas(); track $index) {
+          <option [value]="area.nombreArea">{{ area.nombreArea }}</option>
+        }
+      </select>
+      <div class="separacion-X"></div>
+      <label for="grupo">Grupo:</label>
+      <select class="input-corto" type="text" id="grupo" name="grupo" formControlName="grupo">
+        @for (grupo of grupos(); track $index) {
+          <option [value]="grupo.idGrupo">{{ grupo.nombreGrupo }}</option>
+        }
+      </select>
+      <div class="separacion-X-max"></div>
+      <label for="asignatario">Asignado:</label>
+      <select
+        class="input-corto"
+        type="text"
+        id="asignatario"
+        name="asignatario"
+        formControlName="asignatario"
+      >
+        @for (usuario of usuarios(); track $index) {
+          <option [value]="usuario.username">{{ usuario.username }}</option>
+        }
+      </select>
+      <div class="separacion-X-max"></div>
+    </div>
+    <div class="separacion-Y"></div>
+    <div class="form-row">
+      <label for="tipoCierre">Tipo Cierre:</label>
+      <select
+        class="input-corto"
+        type="text"
+        id="tipoCierre"
+        name="tipoCierre"
+        formControlName="tipoCierre"
+      >
+        @for (tipo of tiposCierre(); track $index) {
+          <option [value]="tipo.nombreArea">{{ tipo.nombreArea }}</option>
+        }
+      </select>
+    </div>
+    <div class="separacion-Y"></div>
+    <div class="form-row">
+      <label for="texto">Búsqueda de texto:</label>
+      <textarea id="texto" name="texto" rows="4" cols="50" formControlName="texto"></textarea>
+    </div>
+  </div>
+</form>

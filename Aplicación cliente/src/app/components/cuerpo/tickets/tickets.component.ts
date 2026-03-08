@@ -56,9 +56,12 @@ export class TicketsComponent {
     if (this.tipoDeTicket() === "abiertas"){
       return this.ticketsService.getTicketsAbiertos()
     } else {
+      if (this.tipoDeTicket() === "busqueda"){
+      return this.ticketsService.getTicketsBuscados()
+    } else {
     return this.ticketsService
       .getTickets()
-      .filter((ticket) => ticket.categoriaTicket.toLocaleLowerCase() === this.tipoDeTicket());}
+      .filter((ticket) => ticket.categoriaTicket.toLocaleLowerCase() === this.tipoDeTicket());}}
   }
 
   //Variable con datos a exportar

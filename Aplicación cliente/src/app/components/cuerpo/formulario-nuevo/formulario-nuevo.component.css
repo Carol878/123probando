@@ -163,3 +163,6 @@ textarea {
   color: #000000 !important;
 }
 
+select{
+  cursor: pointer;
+}
